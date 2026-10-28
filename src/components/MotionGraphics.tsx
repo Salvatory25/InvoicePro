@@ -20,64 +20,64 @@ export const ScrollReveal: React.FC<{
   durationMs = 800,
   threshold = 0.14,
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState<boolean>(() => {
-    if (typeof window === 'undefined' || typeof IntersectionObserver === 'undefined') {
-      return true;
-    }
-    return false;
-  });
+    const ref = useRef<HTMLDivElement>(null);
+    const [isVisible, setIsVisible] = useState<boolean>(() => {
+      if (typeof window === 'undefined' || typeof IntersectionObserver === 'undefined') {
+        return true;
+      }
+      return false;
+    });
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (typeof IntersectionObserver === 'undefined') {
-      setIsVisible(true);
-      return;
-    }
+    useEffect(() => {
+      const el = ref.current;
+      if (!el) return;
+      if (typeof IntersectionObserver === 'undefined') {
+        setIsVisible(true);
+        return;
+      }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold, rootMargin: '0px 0px -40px 0px' }
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              setIsVisible(true);
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold, rootMargin: '0px 0px -40px 0px' }
+      );
+
+      observer.observe(el);
+      return () => observer.disconnect();
+    }, [threshold]);
+
+    const hiddenTransform = {
+      'fade-up': 'translate3d(0, 36px, 0) scale(0.985)',
+      'fade-left': 'translate3d(-36px, 0, 0) scale(0.985)',
+      'fade-right': 'translate3d(36px, 0, 0) scale(0.985)',
+      'scale-up': 'translate3d(0, 20px, 0) scale(0.94)',
+    }[variant];
+
+    return (
+      <div
+        ref={ref}
+        className={className}
+        style={{
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? 'translate3d(0, 0, 0) scale(1)' : hiddenTransform,
+          filter: isVisible ? 'blur(0px)' : 'blur(4px)',
+          transitionProperty: 'opacity, transform, filter',
+          transitionDuration: `${durationMs}ms`,
+          transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+          transitionDelay: `${delayMs}ms`,
+          willChange: 'opacity, transform',
+        }}
+      >
+        {children}
+      </div>
     );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [threshold]);
-
-  const hiddenTransform = {
-    'fade-up': 'translate3d(0, 36px, 0) scale(0.985)',
-    'fade-left': 'translate3d(-36px, 0, 0) scale(0.985)',
-    'fade-right': 'translate3d(36px, 0, 0) scale(0.985)',
-    'scale-up': 'translate3d(0, 20px, 0) scale(0.94)',
-  }[variant];
-
-  return (
-    <div
-      ref={ref}
-      className={className}
-      style={{
-        opacity: isVisible ? 1 : 0,
-        transform: isVisible ? 'translate3d(0, 0, 0) scale(1)' : hiddenTransform,
-        filter: isVisible ? 'blur(0px)' : 'blur(4px)',
-        transitionProperty: 'opacity, transform, filter',
-        transitionDuration: `${durationMs}ms`,
-        transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
-        transitionDelay: `${delayMs}ms`,
-        willChange: 'opacity, transform',
-      }}
-    >
-      {children}
-    </div>
-  );
-};
+  };
 
 /**
  * 2. AnimatedCounter — Smoothly counts numbers up with easing when scrolled into view
@@ -97,64 +97,64 @@ export const AnimatedCounter: React.FC<{
   durationMs = 1350,
   className = '',
 }) => {
-  const ref = useRef<HTMLSpanElement>(null);
-  const [displayValue, setDisplayValue] = useState<number>(value);
-  const [hasAnimated, setHasAnimated] = useState<boolean>(false);
+    const ref = useRef<HTMLSpanElement>(null);
+    const [displayValue, setDisplayValue] = useState<number>(value);
+    const [hasAnimated, setHasAnimated] = useState<boolean>(false);
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === 'undefined' || hasAnimated) return;
+    useEffect(() => {
+      const el = ref.current;
+      if (!el || typeof IntersectionObserver === 'undefined' || hasAnimated) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          setHasAnimated(true);
-          observer.disconnect();
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0]?.isIntersecting) {
+            setHasAnimated(true);
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.2 }
+      );
+
+      observer.observe(el);
+      return () => observer.disconnect();
+    }, [hasAnimated]);
+
+    useEffect(() => {
+      if (!hasAnimated) return;
+      let animationFrameId: number;
+      const startTime = performance.now();
+      const startVal = 0;
+
+      const tick = (now: number) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / durationMs, 1);
+        // Ease-out expo curve for pro financial counter feel
+        const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+        setDisplayValue(startVal + (value - startVal) * eased);
+        if (progress < 1) {
+          animationFrameId = requestAnimationFrame(tick);
+        } else {
+          setDisplayValue(value);
         }
-      },
-      { threshold: 0.2 }
+      };
+
+      animationFrameId = requestAnimationFrame(tick);
+      return () => cancelAnimationFrame(animationFrameId);
+    }, [hasAnimated, value, durationMs]);
+
+    const formatted = displayValue.toLocaleString('en-US', {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+
+    return (
+      <span ref={ref} className={`tabular-nums ${className}`}>
+        {prefix}
+        {formatted}
+        {suffix}
+      </span>
     );
-
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [hasAnimated]);
-
-  useEffect(() => {
-    if (!hasAnimated) return;
-    let animationFrameId: number;
-    const startTime = performance.now();
-    const startVal = 0;
-
-    const tick = (now: number) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / durationMs, 1);
-      // Ease-out expo curve for pro financial counter feel
-      const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      setDisplayValue(startVal + (value - startVal) * eased);
-      if (progress < 1) {
-        animationFrameId = requestAnimationFrame(tick);
-      } else {
-        setDisplayValue(value);
-      }
-    };
-
-    animationFrameId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [hasAnimated, value, durationMs]);
-
-  const formatted = displayValue.toLocaleString('en-US', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  });
-
-  return (
-    <span ref={ref} className={`tabular-nums ${className}`}>
-      {prefix}
-      {formatted}
-      {suffix}
-    </span>
-  );
-};
+  };
 
 /**
  * 3. Interactive3DTiltCard — Subtle Pro 3D Perspective Hover & Soft Spotlight Glare

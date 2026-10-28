@@ -3,33 +3,30 @@ import { Link } from 'react-router-dom';
 import {
   Activity,
   ArrowRight,
+  ArrowUpRight,
   BarChart3,
   Briefcase,
   Building2,
   Calculator,
   Check,
   CheckCircle2,
-  ChevronDown,
   Clock,
-  Cloud,
-  Crown,
+  CreditCard,
   FileCheck2,
+  FileSpreadsheet,
   FileText,
   Globe,
   HelpCircle,
   Layers,
-  Link2,
   Lock,
   Mail,
-  MessageSquare,
   Moon,
-  Play,
-  Receipt,
-  Settings,
+  RefreshCw,
   ShieldCheck,
+  Smartphone,
   Sparkles,
   Sun,
-  UserCheck,
+  Users,
   Zap,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
@@ -119,15 +116,7 @@ const SEO_METADATA: Record<PublicPageType, { titleEn: string; titleSw: string; d
   },
 };
 
-const HERO_PAYMENT_MODES = [
-  { id: 'mpesa', name: 'M-Pesa', channel: 'Vodacom Lipa Namba • 5582910', tone: 'text-emerald-700 dark:text-emerald-400 font-extrabold' },
-  { id: 'visa', name: 'VISA', channel: 'Corporate Card Settlement • Ref Verified', tone: 'text-blue-800 dark:text-blue-400 font-extrabold italic' },
-  { id: 'mixx', name: 'Mixx', channel: 'Mixx by Yas Merchant • Instant Receipt', tone: 'text-indigo-700 dark:text-indigo-400 font-bold' },
-  { id: 'airtel', name: 'Airtel', channel: 'Airtel Money Business • TZS / USD', tone: 'text-red-600 dark:text-red-400 font-bold' },
-  { id: 'crdb', name: 'CRDB', channel: 'CRDB Bank PLC RTGS / EFT • 0150482910200', tone: 'text-teal-800 dark:text-teal-300 font-extrabold' },
-];
-
-const MARQUEE_CAPABILITIES = [
+const MARQUEE_PILLARS = [
   'DECIMAL-SAFE BIGINT FINANCIAL ARITHMETIC',
   'M-PESA • MIXX BY YAS • AIRTEL MONEY • CRDB RTGS',
   'POSTGRESQL ROW LEVEL SECURITY (RLS)',
@@ -138,13 +127,64 @@ const MARQUEE_CAPABILITIES = [
   'MULTI-CURRENCY GROUPING (TZS • KES • UGX • RWF • USD)',
 ];
 
+const PAYMENT_RAILS = [
+  {
+    id: 'mpesa',
+    name: 'M-Pesa Tanzania',
+    code: 'Lipa Namba • 5582910',
+    settlement: 'Instant Mobile Money Reference',
+    badge: 'TZS',
+  },
+  {
+    id: 'mixx',
+    name: 'Mixx by Yas',
+    code: 'Merchant Pay • 884120',
+    settlement: 'Mobile Wallet Allocation',
+    badge: 'TZS',
+  },
+  {
+    id: 'airtel',
+    name: 'Airtel Money',
+    code: 'Business Till • 339104',
+    settlement: 'East Africa Cross-Network',
+    badge: 'TZS / KES',
+  },
+  {
+    id: 'crdb',
+    name: 'CRDB / NMB Bank',
+    code: 'RTGS & EFT • 0150482910200',
+    settlement: 'Corporate Bank Settlement',
+    badge: 'TZS / USD',
+  },
+  {
+    id: 'visa',
+    name: 'VISA / Mastercard',
+    code: 'International Settlement',
+    settlement: 'Zero Raw Card Storage',
+    badge: 'USD / EUR',
+  },
+];
+
 export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
   const { currentUser, language, setLanguage, theme, toggleTheme, t } = useApp();
   const [contactSubmitted, setContactSubmitted] = useState(false);
   const [contactForm, setContactForm] = useState({ name: '', email: '', company: '', message: '' });
-  const [activeAccordion, setActiveAccordion] = useState<number>(0);
-  const [selectedHeroPayment, setSelectedHeroPayment] = useState<string>('mpesa');
-  const [activeDonutMetric, setActiveDonutMetric] = useState<'collected' | 'outstanding' | 'overdue'>('collected');
+
+  // Interactive Hero Workspace Simulator State
+  const [heroTab, setHeroTab] = useState<'invoice' | 'quote' | 'receivables' | 'portal'>('invoice');
+  const [simulatedPaymentStage, setSimulatedPaymentStage] = useState<'issued' | 'partial' | 'paid'>('partial');
+  const [quoteConvertedDemo, setQuoteConvertedDemo] = useState<boolean>(false);
+  const [selectedRailId, setSelectedRailId] = useState<string>('mpesa');
+
+  // Interactive Bento States
+  const [immutabilityDemoMode, setImmutabilityDemoMode] = useState<'locked' | 'credit_note'>('locked');
+  const [bentoCurrency, setBentoCurrency] = useState<'TZS' | 'KES' | 'USD'>('TZS');
+  const [bentoDocLang, setBentoDocLang] = useState<'en' | 'sw'>('en');
+
+  // Interactive 4-Step Workflow Scrubber State
+  const [activeWorkflowStep, setActiveWorkflowStep] = useState<number>(0);
+
+  // Interactive Pricing Interval
   const [planInterval, setPlanInterval] = useState<'monthly' | 'annual'>('monthly');
 
   // Interactive Live Decimal-Safe Sandbox Calculator State
@@ -162,9 +202,6 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
       descEl.setAttribute('content', language === 'sw' ? meta.descSw : meta.descEn);
     }
   }, [page, language]);
-
-  const activePaymentMode =
-    HERO_PAYMENT_MODES.find((m) => m.id === selectedHeroPayment) ?? HERO_PAYMENT_MODES[0];
 
   // Live Sandbox Calculations using our real decimal-safe engine
   let sandboxTotals = { subtotal: '0.00', discountTotal: '0.00', taxTotal: '0.00', grandTotal: '0.00' };
@@ -191,104 +228,168 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
     depositPaidRaw
   );
 
-  return (
-    <div className="min-h-screen w-full flex flex-col bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-300">
-      {/* =====================================================================
-          100% FULL-WIDTH TOP NAVIGATION BAR
-         ===================================================================== */}
-      <header className="sticky top-0 z-40 w-full bg-[#0d9f6e]/95 dark:bg-[#064e3b]/95 backdrop-blur-md text-white border-b border-white/15 transition-colors duration-300">
-        <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 h-20 flex items-center justify-between gap-6">
-          {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-3 font-extrabold text-xl tracking-tight text-white group">
-            <span className="h-10 w-10 rounded-xl bg-white text-[#0d9f6e] flex items-center justify-center shadow-sm transition-transform duration-300 group-hover:scale-105 group-hover:rotate-3">
-              <Crown className="h-5 w-5 fill-[#0d9f6e]" />
-            </span>
-            <span className="text-xl tracking-tight">InvoicePro</span>
-          </Link>
+  const activeRail = PAYMENT_RAILS.find((r) => r.id === selectedRailId) ?? PAYMENT_RAILS[0];
 
-          {/* Center Navigation Links */}
-          <nav
-            aria-label="Main Public Navigation"
-            className="hidden lg:flex items-center gap-9 text-sm font-semibold text-emerald-50/90"
-          >
+  const bentoCurrencyData = {
+    TZS: { invoiced: 'TSh 28,450,000', collected: 'TSh 21,900,000', outstanding: 'TSh 6,550,000', taxLabel: '18% TRA VAT' },
+    KES: { invoiced: 'KSh 1,420,000', collected: 'KSh 1,180,000', outstanding: 'KSh 240,000', taxLabel: '16% KRA VAT' },
+    USD: { invoiced: '$18,500.00', collected: '$14,200.00', outstanding: '$4,300.00', taxLabel: '0% Export Service' },
+  }[bentoCurrency];
+
+  const workflowSteps = [
+    {
+      step: '01',
+      title: language === 'sw' ? 'Tengeneza Quotation na Wigo wa Kazi' : 'Draft & Share Client Quotation',
+      role: 'Sales / Owner',
+      docCode: 'QUO-2026-0009',
+      status: 'ACCEPTED BY CLIENT',
+      desc:
+        language === 'sw'
+          ? 'Andaa makadirio ya gharama kwa Kiswahili au Kiingereza, weka tarehe ya mwisho wa uhalali, na tuma kiungo salama cha Tovuti ya Mteja.'
+          : 'Build itemized estimates with configurable tax rates, validity dates, and revision tracking. Clients review and accept online via an expiring portal link.',
+      highlights: [
+        'Full revision history (v1, v2) preserved',
+        'Client acceptance timestamp recorded in audit log',
+        'Reusable catalog of products & hourly services',
+      ],
+    },
+    {
+      step: '02',
+      title: language === 'sw' ? 'Badilisha Kuwa Ankara Rasmi Isiyofutika' : 'Convert & Lock Sequential Invoice',
+      role: 'Billing / Accountant',
+      docCode: 'INV-2026-0014',
+      status: 'ISSUED & IMMUTABLE',
+      desc:
+        language === 'sw'
+          ? 'Geuza quotation iliyokubaliwa kuwa ankara kwa kubofya mara moja. Mfumo unazuia ankara iliyotolewa kufutwa au kubadilishwa kimyakimya.'
+          : 'Convert approved quotes in one click with duplicate-conversion protection. Once issued, database triggers lock the invoice against silent overwrites.',
+      highlights: [
+        'Atomic per-business numbering (INV-2026-0014)',
+        'PostgreSQL trigger blocks silent mutation of issued totals',
+        'Auditable Credit Notes (CN-2026-0001) for controlled adjustments',
+      ],
+    },
+    {
+      step: '03',
+      title: language === 'sw' ? 'Pokea Malipo ya Awamu au Kamili' : 'Allocate Partial or Full Payments',
+      role: 'Finance / Accountant',
+      docCode: 'PAY-MPESA-94820',
+      status: 'PARTIALLY PAID (50%)',
+      desc:
+        language === 'sw'
+          ? 'Rekodi malipo ya M-Pesa, Mixx by Yas, Airtel Money au Benki. Mfumo unazuia kuingiza malipo mara mbili kwa namba moja ya muamala.'
+          : 'Record mobilization deposits and installment payments across mobile money and bank rails with idempotency keys that prevent double-posting.',
+      highlights: [
+        'Separates manual entries from provider-confirmed settlements',
+        'Automatic remaining balance calculation in minor units',
+        'Zero storage of raw payment card numbers or PINs',
+      ],
+    },
+    {
+      step: '04',
+      title: language === 'sw' ? 'Toa Risiti na Fuatilia Madeni' : 'Issue Receipt & Reconcile Aging',
+      role: 'Owner / Finance',
+      docCode: 'RCT-2026-0001',
+      status: 'SETTLED & RECEIPTED',
+      desc:
+        language === 'sw'
+          ? 'Risiti rasmi yenye namba mfuatano inatolewa papo hapo, vikumbusho vya madeni vinazimwa kiotomatiki, na dashibodi inasasishwa.'
+          : 'Generate numbered payment receipts automatically, auto-suppress pending overdue reminders once balance hits zero, and export currency-grouped CSVs.',
+      highlights: [
+        'Instant bilingual PDF receipt generation',
+        'Automatic suppression of scheduled reminder jobs',
+        'Dashboard strictly separates Invoiced vs. Cash Collected',
+      ],
+    },
+  ];
+
+  return (
+    <div className="min-h-screen w-full flex flex-col bg-white text-slate-900 dark:bg-[#060911] dark:text-slate-100 transition-colors duration-300 selection:bg-emerald-500 selection:text-white">
+      {/* =====================================================================
+          100% FULL-WIDTH ARCHITECTURAL GLASS HEADER (White Default / Dark Ready)
+         ===================================================================== */}
+      <header className="sticky top-0 z-50 w-full bg-white/85 dark:bg-[#060911]/85 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80 transition-colors duration-300">
+        <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 h-20 flex items-center justify-between gap-6">
+          {/* Brand Identity */}
+          <div className="flex items-center gap-4">
             <Link
               to="/"
-              className={`inline-flex items-center gap-1.5 py-1 transition-all duration-200 ${page === 'home'
-                  ? 'text-white font-bold border-b-2 border-white'
-                  : 'hover:text-white hover:-translate-y-0.5'
-                }`}
+              className="flex items-center gap-3 font-extrabold text-xl tracking-tight text-slate-950 dark:text-white group"
             >
-              {t('pub.home')}
-              <ChevronDown className="h-3.5 w-3.5 opacity-75" />
+              <span className="h-10 w-10 rounded-xl bg-gradient-to-br from-[#0d9f6e] to-teal-700 text-white flex items-center justify-center shadow-md shadow-emerald-600/20 transition-transform duration-300 group-hover:scale-105">
+                <FileSpreadsheet className="h-5 w-5" />
+              </span>
+              <div className="flex flex-col">
+                <span className="text-lg font-extrabold tracking-tight leading-none">InvoicePro</span>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#0d9f6e] dark:text-emerald-400 mt-1">
+                  East Africa SaaS
+                </span>
+              </div>
             </Link>
-            <Link
-              to="/features"
-              className={`inline-flex items-center gap-1.5 py-1 transition-all duration-200 ${page === 'features'
-                  ? 'text-white font-bold border-b-2 border-white'
-                  : 'hover:text-white hover:-translate-y-0.5'
-                }`}
-            >
-              {language === 'sw' ? 'Huduma' : 'Product'}
-              <ChevronDown className="h-3.5 w-3.5 opacity-75" />
-            </Link>
-            <Link
-              to="/use-cases"
-              className={`inline-flex items-center gap-1.5 py-1 transition-all duration-200 ${page === 'use-cases'
-                  ? 'text-white font-bold border-b-2 border-white'
-                  : 'hover:text-white hover:-translate-y-0.5'
-                }`}
-            >
-              {language === 'sw' ? 'Sekta' : 'Industries'}
-              <ChevronDown className="h-3.5 w-3.5 opacity-75" />
-            </Link>
-            <Link
-              to="/pricing"
-              className={`py-1 transition-all duration-200 ${page === 'pricing'
-                  ? 'text-white font-bold border-b-2 border-white'
-                  : 'hover:text-white hover:-translate-y-0.5'
-                }`}
-            >
-              {t('pub.pricing')}
-            </Link>
-            <Link
-              to="/help"
-              className={`inline-flex items-center gap-1.5 py-1 transition-all duration-200 ${page === 'help' || page === 'faq'
-                  ? 'text-white font-bold border-b-2 border-white'
-                  : 'hover:text-white hover:-translate-y-0.5'
-                }`}
-            >
-              {language === 'sw' ? 'Msaada' : 'Resources'}
-              <ChevronDown className="h-3.5 w-3.5 opacity-75" />
-            </Link>
+
+            <span className="hidden xl:inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/70 dark:border-emerald-800/60 px-3 py-1 text-[11px] font-bold text-emerald-800 dark:text-emerald-300">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span>TZ • KE • UG • RW</span>
+            </span>
+          </div>
+
+          {/* Center Segmented Navigation Pill */}
+          <nav
+            aria-label="Main Public Navigation"
+            className="hidden lg:flex items-center gap-1 rounded-full bg-slate-100/80 dark:bg-slate-900/90 border border-slate-200/70 dark:border-slate-800 p-1.5 text-xs font-bold"
+          >
+            {[
+              { id: 'home', to: '/', label: t('pub.home') },
+              { id: 'features', to: '/features', label: language === 'sw' ? 'Huduma' : 'Product' },
+              { id: 'use-cases', to: '/use-cases', label: language === 'sw' ? 'Sekta' : 'Solutions' },
+              { id: 'pricing', to: '/pricing', label: t('pub.pricing') },
+              { id: 'help', to: '/help', label: language === 'sw' ? 'Mwongozo' : 'Docs & Help' },
+              { id: 'faq', to: '/faq', label: 'FAQ' },
+            ].map((navItem) => {
+              const isActive = page === navItem.id;
+              return (
+                <Link
+                  key={navItem.id}
+                  to={navItem.to}
+                  className={`rounded-full px-4 py-2 transition-all duration-200 ${
+                    isActive
+                      ? 'bg-white dark:bg-slate-800 text-slate-950 dark:text-white shadow-xs'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-950 dark:hover:text-white'
+                  }`}
+                >
+                  {navItem.label}
+                </Link>
+              );
+            })}
           </nav>
 
-          {/* Right Action Pills */}
-          <div className="flex items-center gap-3">
+          {/* Right Controls: Language, Theme, Auth CTAs */}
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <button
               type="button"
               onClick={() => setLanguage(language === 'en' ? 'sw' : 'en')}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/35 bg-white/10 px-3.5 py-2 text-xs font-bold text-white hover:bg-white/20 transition-all duration-200 cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:border-emerald-500/50 transition-all duration-200 cursor-pointer"
               aria-label="Switch Language"
             >
-              <Globe className="h-3.5 w-3.5" />
-              {language === 'en' ? 'SW' : 'EN'}
+              <Globe className="h-3.5 w-3.5 text-[#0d9f6e] dark:text-emerald-400" />
+              <span>{language === 'en' ? 'SW' : 'EN'}</span>
             </button>
 
             <button
               type="button"
               onClick={toggleTheme}
               title={theme === 'light' ? 'Switch to Dark Theme' : 'Switch to White Theme (Default)'}
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/35 bg-white/10 px-3.5 py-2 text-xs font-bold text-white hover:bg-white/20 transition-all duration-200 cursor-pointer"
+              className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3.5 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:border-emerald-500/50 transition-all duration-200 cursor-pointer"
               aria-label="Toggle Theme"
             >
               {theme === 'dark' ? (
                 <>
-                  <Sun className="h-3.5 w-3.5 text-amber-300" />
+                  <Sun className="h-3.5 w-3.5 text-amber-400" />
                   <span className="hidden sm:inline">Light</span>
                 </>
               ) : (
                 <>
-                  <Moon className="h-3.5 w-3.5" />
+                  <Moon className="h-3.5 w-3.5 text-slate-700" />
                   <span className="hidden sm:inline">Dark</span>
                 </>
               )}
@@ -297,24 +398,25 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
             {currentUser ? (
               <Link
                 to="/app"
-                className="btn-shimmer inline-flex items-center gap-2 rounded-full bg-white px-6 py-2.5 text-xs sm:text-sm font-extrabold text-[#0d9f6e] shadow-md hover:bg-emerald-50 hover:scale-[1.02] transition-all duration-200"
+                className="group btn-shimmer inline-flex items-center gap-2 rounded-full bg-[#0d9f6e] px-5 py-2.5 text-xs sm:text-sm font-extrabold text-white shadow-md shadow-emerald-600/20 hover:bg-emerald-700 transition-all duration-200"
               >
-                {t('pub.goToApp')}
-                <ArrowRight className="h-4 w-4" />
+                <span>{t('pub.goToApp')}</span>
+                <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
               </Link>
             ) : (
               <>
                 <Link
                   to="/login"
-                  className="rounded-full border border-white/80 px-6 py-2 text-xs sm:text-sm font-bold text-white hover:bg-white/15 transition-all duration-200"
+                  className="hidden sm:inline-flex items-center rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-5 py-2.5 text-xs sm:text-sm font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200"
                 >
-                  {language === 'sw' ? 'Ingia' : 'Log In'}
+                  {language === 'sw' ? 'Ingia' : 'Sign In'}
                 </Link>
                 <Link
                   to="/register"
-                  className="btn-shimmer rounded-full bg-white px-6 py-2.5 text-xs sm:text-sm font-extrabold text-[#0d9f6e] shadow-md hover:bg-emerald-50 hover:scale-[1.02] transition-all duration-200"
+                  className="group btn-shimmer inline-flex items-center gap-2 rounded-full bg-slate-950 dark:bg-[#0d9f6e] px-5 py-2.5 text-xs sm:text-sm font-extrabold text-white shadow-md hover:bg-slate-800 dark:hover:bg-emerald-600 transition-all duration-200"
                 >
-                  {language === 'sw' ? 'Jisajili Bure' : 'Sign Up Free'}
+                  <span>{language === 'sw' ? 'Anza Bure' : 'Start Free'}</span>
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform duration-200 group-hover:translate-x-1" />
                 </Link>
               </>
             )}
@@ -329,269 +431,470 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
         {page === 'home' && (
           <div className="w-full">
             {/* ---------------------------------------------------------------
-                SECTION 1: 100% FULL-WIDTH EMERALD HERO SECTION
+                SECTION 1: ARCHITECTURAL SPLIT HERO + INTERACTIVE LIVE WORKSPACE
                --------------------------------------------------------------- */}
-            <section className="relative w-full overflow-hidden hero-mesh-pattern pt-14 lg:pt-20 pb-0 text-white">
-              <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24">
-                {/* Centered Two-Line Editorial Serif Headline */}
-                <div className="text-center max-w-5xl mx-auto animate-fade-up">
-                  {language === 'sw' && (
-                    <p className="text-xs font-bold uppercase tracking-widest text-emerald-100 mb-3">
-                      Tengeneza Ankara na Quotation za Kitaalamu Tanzania & Afrika Mashariki
-                    </p>
-                  )}
-                  <h1 className="font-display text-4xl sm:text-6xl xl:text-[68px] font-bold tracking-tight leading-[1.1] text-white">
-                    {language === 'sw' ? (
-                      <>
-                        Mfumo Imara wa Ankara na Quotation
-                        <span className="mt-3 flex flex-wrap items-center justify-center gap-4">
-                          <span>Biashara Yako</span>
-                          <span className="inline-flex h-12 w-16 sm:h-14 sm:w-20 items-center justify-center rounded-full bg-white text-[#0d9f6e] shadow-xl animate-pulse-ring">
-                            <BarChart3 className="h-7 w-7" />
-                          </span>
-                          <span>Wateja Wako</span>
-                        </span>
-                      </>
-                    ) : (
-                      <>
-                        Powerful Invoicing Platform
-                        <span className="mt-3 flex flex-wrap items-center justify-center gap-4">
-                          <span>Your Business</span>
-                          <span className="inline-flex h-12 w-16 sm:h-14 sm:w-20 items-center justify-center rounded-full bg-white text-[#0d9f6e] shadow-xl animate-pulse-ring">
-                            <BarChart3 className="h-7 w-7" />
-                          </span>
-                          <span>Your Clients</span>
-                        </span>
-                      </>
-                    )}
-                  </h1>
-                </div>
+            <section className="relative w-full overflow-hidden bg-gradient-to-b from-slate-50/80 via-white to-white dark:from-[#060911] dark:via-[#080d17] dark:to-[#060911] pt-12 lg:pt-20 pb-20 lg:pb-28 border-b border-slate-200/70 dark:border-slate-800/80">
+              {/* Subtle Architectural Grid Hairlines & Soft Radial Aura */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgba(15,23,42,0.035)_1px,transparent_1px),linear-gradient(to_bottom,rgba(15,23,42,0.035)_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:64px_64px]"
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute -top-40 right-1/4 h-[520px] w-[520px] rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 blur-3xl"
+              />
 
-                {/* Two-Column Hero Showcase Below Headline */}
-                <div className="mt-14 lg:mt-16 grid lg:grid-cols-12 gap-12 xl:gap-16 items-end">
-                  {/* Left Column: Lead Copy, Checkmarks & Bottom Mini-Invoice + Stat */}
-                  <div className="lg:col-span-6 space-y-8 pb-14 animate-fade-up-delay-1">
-                    <div className="border-l-2 border-white/80 pl-5 text-base sm:text-lg text-emerald-50/95 leading-relaxed max-w-2xl font-normal">
-                      {language === 'sw'
-                        ? 'Mfumo rahisi wa malipo unakusaidia kulipwa kwa wakati. Wape wateja wako njia nyingi za malipo (M-Pesa, Mixx by Yas, Airtel Money na Benki) kwa usalama na uhakika.'
-                        : 'A simple, structured billing workflow helps you get paid on time. Provide multiple mobile-money and bank payment options that your customers can choose from to settle invoices securely.'}
+              <div className="relative w-full px-6 sm:px-10 lg:px-16 xl:px-24">
+                <div className="grid lg:grid-cols-12 gap-12 xl:gap-16 items-center">
+                  {/* Left 6 Columns: Editorial Value Proposition & Trust Metrics */}
+                  <div className="lg:col-span-6 space-y-8 animate-fade-up">
+                    <div className="inline-flex flex-wrap items-center gap-2.5 rounded-full bg-emerald-50/90 dark:bg-emerald-950/70 border border-emerald-200/80 dark:border-emerald-800/70 px-4 py-1.5 text-xs font-extrabold text-emerald-900 dark:text-emerald-300 shadow-2xs">
+                      <span className="relative flex h-2 w-2">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0d9f6e]" />
+                      </span>
+                      <span>
+                        {language === 'sw'
+                          ? 'Tengeneza Ankara na Quotation za Kitaalamu Tanzania & Afrika Mashariki'
+                          : 'Commercial Invoicing, Quotations & Receivables • East Africa'}
+                      </span>
                     </div>
 
-                    <ul className="space-y-3.5 text-sm sm:text-base font-medium text-white">
-                      <li className="flex items-center gap-3">
-                        <span className="h-5 w-5 rounded-full bg-white/15 flex items-center justify-center shrink-0">
-                          <Check className="h-3.5 w-3.5 text-white" />
-                        </span>
-                        <span>
-                          {language === 'sw'
-                            ? 'Tuma ankara na quotation kwa WhatsApp, barua pepe na Tovuti ya Mteja'
-                            : 'Send invoices via WhatsApp link, email and secure client portal'}
-                        </span>
-                      </li>
-                      <li className="flex items-center gap-3">
-                        <span className="h-5 w-5 rounded-full bg-white/15 flex items-center justify-center shrink-0">
-                          <Check className="h-3.5 w-3.5 text-white" />
-                        </span>
-                        <span>
-                          {language === 'sw'
-                            ? 'Fuatilia hali ya ankara, malipo ya awamu na salio la mteja'
-                            : "Keep track of customers' invoice status and partial payment balances"}
-                        </span>
-                      </li>
-                      <li className="flex items-center gap-3">
-                        <span className="h-5 w-5 rounded-full bg-white/15 flex items-center justify-center shrink-0">
-                          <Check className="h-3.5 w-3.5 text-white" />
-                        </span>
-                        <span>
-                          {language === 'sw'
-                            ? 'Kumbusha wateja malipo yaliyopitiliza muda kwa mpangilio maalum'
-                            : 'Follow up with automated payment reminders and promise dates'}
-                        </span>
-                      </li>
-                    </ul>
-
-                    {/* Bottom-Left Mini Invoice Preview Card + Capability Stat & Role Avatars */}
-                    <div className="pt-4 flex flex-col sm:flex-row items-start sm:items-center gap-8">
-                      {/* Mini Floating Invoice Card with Gold Circular Action Badge */}
-                      <div className="relative w-56 rounded-2xl bg-white dark:bg-slate-900 p-5 text-slate-800 dark:text-slate-100 shadow-2xl animate-float-delayed border border-white/40">
-                        {/* Gold Circular Badge Overlapping Left Edge */}
-                        <Link
-                          to={currentUser ? '/app' : '/login'}
-                          title="Open Interactive Demo Workspace"
-                          className="absolute -left-5 bottom-5 h-13 w-13 rounded-full bg-amber-400 text-slate-950 shadow-lg flex flex-col items-center justify-center border-2 border-white hover:scale-110 transition-transform duration-300"
-                        >
-                          <Play className="h-4 w-4 fill-slate-950 ml-0.5" />
-                          <span className="text-[7px] font-extrabold uppercase tracking-tighter mt-0.5">
-                            DEMO
+                    <h1 className="font-display text-4xl sm:text-6xl xl:text-[64px] font-bold tracking-tight text-slate-950 dark:text-white leading-[1.06]">
+                      {language === 'sw' ? (
+                        <>
+                          Mfumo wa Kisasa wa Ankara,{' '}
+                          <span className="bg-gradient-to-r from-[#0d9f6e] via-teal-600 to-emerald-500 bg-clip-text text-transparent">
+                            Quotation na Mapato
+                          </span>{' '}
+                          kwa Biashara Makini.
+                        </>
+                      ) : (
+                        <>
+                          Precision invoicing, client quotations &{' '}
+                          <span className="bg-gradient-to-r from-[#0d9f6e] via-teal-600 to-emerald-500 bg-clip-text text-transparent">
+                            verified receivables.
                           </span>
-                        </Link>
+                        </>
+                      )}
+                    </h1>
 
-                        <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5 mb-3">
-                          <span className="h-4 w-4 rounded-full bg-emerald-100 dark:bg-emerald-950 inline-block" />
-                          <span className="text-xs font-extrabold text-slate-900 dark:text-white tracking-tight">
-                            Invoice
-                          </span>
+                    <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 leading-relaxed max-w-2xl">
+                      {language === 'sw'
+                        ? 'Badilisha quotation zilizokubaliwa kuwa ankara zenye namba mfuatano, rekodi malipo ya awamu kupitia M-Pesa, Mixx by Yas, Airtel Money na Benki, na linda kumbukumbu zako kwa PostgreSQL Row Level Security.'
+                        : 'Built for freelancers, consultants, agencies, and SMBs across Tanzania and East Africa. Convert approved estimates in one click, allocate partial mobile-money and bank settlements with decimal-safe precision, and lock issued invoices against silent edits.'}
+                    </p>
+
+                    {/* Primary & Secondary Action Buttons */}
+                    <div className="flex flex-wrap items-center gap-4 pt-1">
+                      <Link
+                        to={currentUser ? '/app' : '/register'}
+                        className="group btn-shimmer inline-flex items-center gap-2.5 rounded-full bg-[#0d9f6e] px-7 py-4 text-sm font-extrabold text-white shadow-lg shadow-emerald-600/25 hover:bg-emerald-700 hover:scale-[1.02] transition-all duration-300"
+                      >
+                        <span>
+                          {currentUser
+                            ? t('pub.goToApp')
+                            : language === 'sw'
+                              ? 'Anza Kutengeneza Ankara Bure'
+                              : 'Create Your First Invoice Free'}
+                        </span>
+                        <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                      </Link>
+
+                      <Link
+                        to={currentUser ? '/app/invoices' : '/login'}
+                        className="group inline-flex items-center gap-2 rounded-full border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-6 py-4 text-sm font-bold text-slate-800 dark:text-slate-200 hover:border-[#0d9f6e] dark:hover:border-emerald-500 transition-all duration-300"
+                      >
+                        <span>
+                          {language === 'sw' ? 'Jaribu Mfumo wa Mfano' : 'Explore Interactive Workspace'}
+                        </span>
+                        <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-[#0d9f6e] transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                      </Link>
+                    </div>
+
+                    {/* 4 Architectural Engineering Metrics */}
+                    <div className="pt-6 border-t border-slate-200/80 dark:border-slate-800/80 grid grid-cols-2 sm:grid-cols-4 gap-6">
+                      <div>
+                        <div className="text-2xl sm:text-3xl font-extrabold text-slate-950 dark:text-white tracking-tight">
+                          <AnimatedCounter value={100} suffix="%" />
                         </div>
-                        <div className="space-y-2 text-[11px]">
-                          <div className="flex justify-between text-slate-500 dark:text-slate-400">
-                            <span className="font-mono">INV-2026-0014</span>
-                            <span className="text-[#0d9f6e] dark:text-emerald-400 font-bold">TZS</span>
-                          </div>
-                          <div className="h-2 w-full rounded-full bg-emerald-100 dark:bg-emerald-950" />
-                          <div className="h-2 w-4/5 rounded-full bg-slate-100 dark:bg-slate-800" />
-                          <div className="pt-1.5 flex justify-between font-extrabold text-slate-900 dark:text-white">
-                            <span>Total</span>
-                            <span className="text-[#0d9f6e] dark:text-emerald-400">
-                              <AnimatedCounter value={4720000} />
-                            </span>
-                          </div>
+                        <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                          Minor-Unit BigInt Math
                         </div>
                       </div>
-
-                      {/* Stat & Overlapping Role Badges */}
-                      <div className="space-y-2.5">
-                        <div className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-                          <AnimatedCounter value={7} suffix="+ Currencies" />
+                      <div>
+                        <div className="text-2xl sm:text-3xl font-extrabold text-slate-950 dark:text-white tracking-tight">
+                          <AnimatedCounter value={7} suffix="+" />
                         </div>
-                        <div className="text-xs sm:text-sm font-medium text-emerald-100">
-                          {language === 'sw'
-                            ? 'TZS, KES, UGX, RWF & USD • Kiswahili & Kiingereza'
-                            : 'TZS, KES, UGX, RWF & USD • Bilingual TZ Ready'}
+                        <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                          TZS, KES, UGX, RWF, USD
                         </div>
-                        <div className="flex items-center -space-x-2.5 pt-1">
-                          {[
-                            { initials: 'FL', bg: 'bg-amber-500', label: 'Freelancers' },
-                            { initials: 'CS', bg: 'bg-teal-800', label: 'Consultants' },
-                            { initials: 'AG', bg: 'bg-slate-900', label: 'Agencies' },
-                            { initials: 'SM', bg: 'bg-emerald-950', label: 'SMBs' },
-                          ].map((av, i) => (
-                            <span
-                              key={i}
-                              title={av.label}
-                              className={`h-10 w-10 rounded-full ${av.bg} border-2 border-white text-xs font-extrabold text-white flex items-center justify-center shadow-md transition-transform duration-300 hover:-translate-y-1.5 hover:scale-110`}
-                            >
-                              {av.initials}
-                            </span>
-                          ))}
+                      </div>
+                      <div>
+                        <div className="text-2xl sm:text-3xl font-extrabold text-slate-950 dark:text-white tracking-tight">
+                          <AnimatedCounter value={29} />
+                        </div>
+                        <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                          PostgreSQL RLS Tables
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-2xl sm:text-3xl font-extrabold text-[#0d9f6e] dark:text-emerald-400 tracking-tight">
+                          EN / SW
+                        </div>
+                        <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 mt-0.5">
+                          Bilingual PDF Documents
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Right Column: Stacked 3D Interactive Client & Payment Card */}
-                  <div className="lg:col-span-6 relative group/hero animate-fade-up-delay-2">
-                    {/* Floating Live Receipt Notification Badge */}
-                    <div className="hidden sm:flex items-center gap-3 absolute -top-6 right-6 z-20 rounded-2xl bg-slate-900/95 text-white px-4 py-2.5 shadow-xl border border-emerald-400/30 animate-float-badge">
-                      <span className="relative flex h-2.5 w-2.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
-                      </span>
-                      <div className="text-[11px]">
-                        <span className="font-extrabold text-emerald-300">RCT-2026-0001 Issued</span> •{' '}
-                        <span className="text-slate-300">{activePaymentMode.name} Settlement</span>
-                      </div>
-                    </div>
-
-                    {/* Decorative 3D Angled Background Cards on Right (Smoothly fan out on hover) */}
-                    <div className="hidden sm:block absolute -right-5 top-8 bottom-0 w-full rounded-t-3xl bg-white/15 rotate-3 transition-transform duration-500 ease-out group-hover/hero:rotate-5 group-hover/hero:translate-x-2 pointer-events-none" />
-                    <div className="hidden sm:block absolute -right-2.5 top-4 bottom-0 w-full rounded-t-3xl bg-white/30 rotate-1.5 transition-transform duration-500 ease-out group-hover/hero:rotate-3 group-hover/hero:translate-x-1 pointer-events-none" />
-
-                    {/* Main Foreground Card with Pro 3D Perspective Hover */}
-                    <Interactive3DTiltCard className="rounded-t-3xl bg-white dark:bg-slate-900 p-7 sm:p-9 text-slate-800 dark:text-slate-100 shadow-2xl border border-emerald-100 dark:border-slate-800 transition-colors duration-300">
-                      <div className="flex items-center justify-between mb-6">
-                        <div>
-                          <div className="text-lg sm:text-xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                            Hello, Amani Mwakasege
-                          </div>
-                          <div className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-                            Kilimanjaro Digital & Advisory Ltd • Dar es Salaam, TZ
-                          </div>
-                        </div>
+                  {/* Right 6 Columns: Interactive Multi-Tab Product Workspace Simulator */}
+                  <div className="lg:col-span-6 animate-fade-up-delay-1">
+                    <Interactive3DTiltCard
+                      intensity={3.5}
+                      className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 shadow-[0_32px_64px_-16px_rgba(15,23,42,0.12)] dark:shadow-[0_32px_64px_-16px_rgba(0,0,0,0.65)] overflow-hidden"
+                    >
+                      {/* Window Chrome & Interactive Module Switcher Tabs */}
+                      <div className="bg-slate-950 text-white px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800">
                         <div className="flex items-center gap-2">
-                          <span className="h-3.5 w-9 rounded-full bg-emerald-100 dark:bg-emerald-950 inline-block" />
-                          <span className="h-3.5 w-9 rounded-full bg-emerald-200/70 dark:bg-emerald-900/60 inline-block" />
-                        </div>
-                      </div>
-
-                      {/* Outstanding Invoices & Available Credits Box */}
-                      <div className="rounded-2xl border border-emerald-100 dark:border-slate-800 bg-[#f8fdfb] dark:bg-slate-800/60 p-6 flex flex-wrap items-center justify-between gap-4 mb-6 transition-all duration-300 hover:border-emerald-300/80">
-                        <div>
-                          <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                            {language === 'sw' ? 'Salio la Ankara Zinazodaiwa' : 'Outstanding Invoices'}
-                          </div>
-                          <div className="mt-1.5 text-2xl sm:text-3xl font-extrabold text-[#0d9f6e] dark:text-emerald-400 tracking-tight">
-                            <AnimatedCounter value={2720000} prefix="TSh " decimals={2} />
-                          </div>
-                          <Link
-                            to={currentUser ? '/app/payments' : '/login'}
-                            className="group/btn btn-shimmer mt-3.5 inline-flex items-center gap-1.5 rounded-full bg-[#0d9f6e] px-6 py-2 text-xs font-extrabold text-white shadow-sm hover:bg-emerald-700 hover:scale-[1.03] transition-all duration-300"
-                          >
-                            <span>{language === 'sw' ? 'Rekodi Malipo' : 'Pay Now'}</span>
-                            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/btn:translate-x-1" />
-                          </Link>
-                        </div>
-
-                        <div className="text-right">
-                          <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                            {language === 'sw' ? 'Credit Notes Zilizotolewa' : 'Available Credits'}
-                          </div>
-                          <div className="mt-1.5 text-2xl sm:text-3xl font-extrabold text-[#0d9f6e] dark:text-emerald-400 tracking-tight">
-                            TSh 0.00
-                          </div>
-                          <div className="mt-3.5 text-xs font-medium text-slate-500 dark:text-slate-400 transition-all duration-300">
-                            {activePaymentMode.channel}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Interactive Payment Modes Row */}
-                      <div className="space-y-3.5">
-                        <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
-                          <span>{language === 'sw' ? 'Njia za Malipo Zinazokubaliwa' : 'Payment Modes'}</span>
-                          <span className="text-[11px] font-semibold text-[#0d9f6e] dark:text-emerald-400 transition-all duration-300">
-                            {activePaymentMode.name} Selected
+                          <span className="h-2.5 w-2.5 rounded-full bg-rose-500/80" />
+                          <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
+                          <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
+                          <span className="ml-2 text-[11px] font-mono text-slate-400">
+                            Kilimanjaro Advisory Ltd • Tenant RLS Active
                           </span>
                         </div>
-                        <div className="grid grid-cols-5 gap-2.5 text-center">
-                          {HERO_PAYMENT_MODES.map((pm) => {
-                            const isSelected = pm.id === selectedHeroPayment;
-                            return (
-                              <button
-                                key={pm.id}
-                                type="button"
-                                onClick={() => setSelectedHeroPayment(pm.id)}
-                                className={`rounded-xl border py-2.5 px-2 text-xs flex items-center justify-center transition-all duration-300 cursor-pointer ${
-                                  isSelected
-                                    ? 'border-[#0d9f6e] bg-emerald-50/80 dark:bg-emerald-950/60 shadow-sm -translate-y-0.5 scale-[1.04]'
-                                    : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800/80 hover:border-emerald-200 hover:-translate-y-0.5'
-                                }`}
-                              >
-                                <span className={pm.tone}>{pm.name}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
 
-                        {/* Bottom 5 Mint Action Icon Tiles */}
-                        <div className="grid grid-cols-5 gap-3 pt-3">
+                        <div className="flex items-center gap-1 rounded-xl bg-slate-900 p-1 border border-slate-800 text-[11px] font-bold">
                           {[
-                            { icon: Link2, label: 'Client Portal' },
-                            { icon: MessageSquare, label: 'Reminders' },
-                            { icon: FileText, label: 'Invoices' },
-                            { icon: Settings, label: 'Tax & Setup' },
-                            { icon: UserCheck, label: 'Clients' },
-                          ].map((tile, idx) => (
-                            <Link
-                              key={idx}
-                              to={currentUser ? '/app' : '/login'}
-                              title={tile.label}
-                              className="group rounded-xl bg-[#e6f8f1] dark:bg-emerald-950/50 hover:bg-[#0d9f6e] dark:hover:bg-[#0d9f6e] text-[#0d9f6e] dark:text-emerald-400 hover:text-white py-3.5 flex flex-col items-center justify-center gap-1 transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+                            { id: 'invoice', label: 'Invoice' },
+                            { id: 'quote', label: 'Quotation' },
+                            { id: 'receivables', label: 'Receivables' },
+                            { id: 'portal', label: 'Payment Rails' },
+                          ].map((tab) => (
+                            <button
+                              key={tab.id}
+                              type="button"
+                              onClick={() => setHeroTab(tab.id as typeof heroTab)}
+                              className={`rounded-lg px-2.5 py-1 transition-all duration-200 cursor-pointer ${
+                                heroTab === tab.id
+                                  ? 'bg-[#0d9f6e] text-white shadow-xs'
+                                  : 'text-slate-400 hover:text-white'
+                              }`}
                             >
-                              <tile.icon className="h-4 w-4 transition-transform duration-300 group-hover:scale-115" />
-                            </Link>
+                              {tab.label}
+                            </button>
                           ))}
                         </div>
                       </div>
+
+                      {/* Tab 1: Interactive Commercial Invoice & Live Payment Simulator */}
+                      {heroTab === 'invoice' && (
+                        <div className="p-6 sm:p-8 space-y-6">
+                          <div className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-mono text-xs font-extrabold uppercase tracking-wider text-slate-400">
+                                  COMMERCIAL INVOICE
+                                </span>
+                                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 dark:bg-slate-800 px-2.5 py-0.5 text-[10px] font-bold text-slate-700 dark:text-slate-300">
+                                  <Lock className="h-2.5 w-2.5 text-[#0d9f6e]" />
+                                  Immutable Record
+                                </span>
+                              </div>
+                              <div className="text-xl sm:text-2xl font-extrabold text-slate-950 dark:text-white mt-1 font-mono">
+                                INV-2026-0014
+                              </div>
+                              <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                Billed To: <strong className="text-slate-800 dark:text-slate-200">Serengeti Logistics &amp; Freight Ltd</strong> • TIN: 104-892-319
+                              </div>
+                            </div>
+
+                            <div className="text-right">
+                              <span
+                                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold uppercase tracking-wider transition-all duration-300 ${
+                                  simulatedPaymentStage === 'paid'
+                                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                                    : simulatedPaymentStage === 'partial'
+                                      ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                                      : 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300'
+                                }`}
+                              >
+                                <span className="h-1.5 w-1.5 rounded-full bg-current" />
+                                {simulatedPaymentStage === 'paid'
+                                  ? 'Paid in Full'
+                                  : simulatedPaymentStage === 'partial'
+                                    ? 'Partially Paid (50%)'
+                                    : 'Issued • Net 14'}
+                              </span>
+                              <div className="text-[11px] text-slate-400 mt-1.5 font-mono">
+                                Due: 14 Nov 2026
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Invoice Line Items Preview */}
+                          <div className="space-y-2.5 text-xs">
+                            <div className="grid grid-cols-12 text-[11px] font-bold uppercase tracking-wider text-slate-400 pb-1">
+                              <div className="col-span-7">Description</div>
+                              <div className="col-span-2 text-right">Tax</div>
+                              <div className="col-span-3 text-right">Amount (TZS)</div>
+                            </div>
+                            <div className="grid grid-cols-12 items-center rounded-xl bg-slate-50 dark:bg-slate-800/60 px-3.5 py-2.5 font-medium">
+                              <div className="col-span-7 text-slate-900 dark:text-white font-semibold">
+                                ERP &amp; Customs Integration Milestone 1
+                              </div>
+                              <div className="col-span-2 text-right text-slate-500">18% VAT</div>
+                              <div className="col-span-3 text-right font-mono font-bold text-slate-900 dark:text-white">
+                                3,000,000
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-12 items-center rounded-xl bg-slate-50 dark:bg-slate-800/60 px-3.5 py-2.5 font-medium">
+                              <div className="col-span-7 text-slate-900 dark:text-white font-semibold">
+                                Staff Onboarding &amp; Bilingual Training (10 hrs)
+                              </div>
+                              <div className="col-span-2 text-right text-slate-500">18% VAT</div>
+                              <div className="col-span-3 text-right font-mono font-bold text-slate-900 dark:text-white">
+                                1,000,000
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Financial Totals + Interactive Payment Stage Switcher */}
+                          <div className="rounded-2xl bg-slate-950 text-white p-5 space-y-4">
+                            <div className="flex flex-wrap items-center justify-between gap-4">
+                              <div>
+                                <div className="text-[11px] font-mono uppercase tracking-wider text-slate-400">
+                                  Grand Total (Incl. TSh 720,000 VAT)
+                                </div>
+                                <div className="text-xl font-extrabold font-mono text-white mt-0.5">
+                                  TSh 4,720,000.00
+                                </div>
+                              </div>
+
+                              <div className="text-right">
+                                <div className="text-[11px] font-mono uppercase tracking-wider text-emerald-400">
+                                  Balance Due
+                                </div>
+                                <div className="text-xl font-extrabold font-mono text-emerald-300 mt-0.5 transition-all duration-300">
+                                  {simulatedPaymentStage === 'paid'
+                                    ? 'TSh 0.00'
+                                    : simulatedPaymentStage === 'partial'
+                                      ? 'TSh 2,360,000.00'
+                                      : 'TSh 4,720,000.00'}
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Animated Allocation Progress Bar */}
+                            <div className="space-y-1.5">
+                              <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
+                                <div
+                                  className="h-full rounded-full bg-gradient-to-r from-[#0d9f6e] to-emerald-400 transition-all duration-500 ease-out"
+                                  style={{
+                                    width:
+                                      simulatedPaymentStage === 'paid'
+                                        ? '100%'
+                                        : simulatedPaymentStage === 'partial'
+                                          ? '50%'
+                                          : '6%',
+                                  }}
+                                />
+                              </div>
+                              <div className="flex items-center justify-between text-[11px] text-slate-400">
+                                <span>Click below to test live payment allocation:</span>
+                                {simulatedPaymentStage === 'paid' && (
+                                  <span className="text-emerald-300 font-bold">
+                                    Receipt #RCT-2026-0001 Generated
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Interactive Simulator Buttons */}
+                            <div className="grid grid-cols-3 gap-2 pt-1">
+                              {[
+                                { id: 'issued', label: '1. Issued (0%)' },
+                                { id: 'partial', label: '2. M-Pesa 50%' },
+                                { id: 'paid', label: '3. Paid 100%' },
+                              ].map((st) => (
+                                <button
+                                  key={st.id}
+                                  type="button"
+                                  onClick={() => setSimulatedPaymentStage(st.id as typeof simulatedPaymentStage)}
+                                  className={`rounded-xl py-2 px-2.5 text-xs font-bold transition-all duration-200 cursor-pointer ${
+                                    simulatedPaymentStage === st.id
+                                      ? 'bg-[#0d9f6e] text-white shadow-sm'
+                                      : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                                  }`}
+                                >
+                                  {st.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Tab 2: Interactive Quotation-to-Invoice Conversion Preview */}
+                      {heroTab === 'quote' && (
+                        <div className="p-6 sm:p-8 space-y-6">
+                          <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+                            <div>
+                              <span className="text-[11px] font-mono font-bold uppercase text-[#0d9f6e]">
+                                QUOTATION / ESTIMATE LIFECYCLE
+                              </span>
+                              <h3 className="text-xl font-extrabold text-slate-950 dark:text-white font-mono mt-0.5">
+                                QUO-2026-0009 (Rev 2)
+                              </h3>
+                              <p className="text-xs text-slate-500">
+                                Client: Azania Marine Services • Valid until 30 Nov 2026
+                              </p>
+                            </div>
+                            <span className="rounded-full bg-emerald-100 dark:bg-emerald-950 px-3 py-1 text-xs font-extrabold text-emerald-800 dark:text-emerald-300">
+                              {quoteConvertedDemo ? 'CONVERTED TO INV-2026-0015' : 'ACCEPTED BY CLIENT'}
+                            </span>
+                          </div>
+
+                          <div className="space-y-3 text-xs">
+                            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 p-4 flex items-center justify-between">
+                              <div>
+                                <div className="font-bold text-slate-900 dark:text-white">
+                                  Agreed Quotation Total (Preserved on Conversion)
+                                </div>
+                                <div className="text-slate-500 mt-0.5">
+                                  3 Line Items • 18% VAT • Terms &amp; Notes Locked
+                                </div>
+                              </div>
+                              <div className="text-lg font-extrabold font-mono text-[#0d9f6e] dark:text-emerald-400">
+                                TSh 8,260,000
+                              </div>
+                            </div>
+
+                            <div className="rounded-2xl bg-slate-50 dark:bg-slate-800/70 p-4 space-y-2">
+                              <div className="font-bold text-slate-800 dark:text-slate-200">
+                                Duplicate-Conversion Guard
+                              </div>
+                              <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
+                                {quoteConvertedDemo
+                                  ? 'Quotation QUO-2026-0009 is now linked to Invoice INV-2026-0015. Attempting a second conversion is automatically blocked to prevent double-billing.'
+                                  : 'Click below to simulate converting this accepted quotation into a sequential commercial invoice.'}
+                              </p>
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => setQuoteConvertedDemo((prev) => !prev)}
+                            className="w-full rounded-2xl bg-[#0d9f6e] hover:bg-emerald-700 text-white py-3.5 px-5 text-xs font-extrabold flex items-center justify-center gap-2 transition cursor-pointer"
+                          >
+                            <RefreshCw className="h-4 w-4" />
+                            <span>
+                              {quoteConvertedDemo
+                                ? 'Reset Quotation Conversion Demo'
+                                : 'Convert QUO-2026-0009 to Sequential Invoice'}
+                            </span>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Tab 3: Receivables & Aging Preview */}
+                      {heroTab === 'receivables' && (
+                        <div className="p-6 sm:p-8 space-y-6">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 p-4">
+                              <div className="text-[11px] font-bold uppercase text-slate-400">
+                                Total Invoiced (TZS)
+                              </div>
+                              <div className="text-xl font-extrabold font-mono text-slate-950 dark:text-white mt-1">
+                                TSh 12,862,000
+                              </div>
+                              <div className="text-[11px] text-slate-500 mt-1">
+                                Gross commercial value billed
+                              </div>
+                            </div>
+                            <div className="rounded-2xl border border-emerald-200 dark:border-emerald-800/70 bg-emerald-50/50 dark:bg-emerald-950/30 p-4">
+                              <div className="text-[11px] font-bold uppercase text-[#0d9f6e] dark:text-emerald-400">
+                                Actual Cash Collected
+                              </div>
+                              <div className="text-xl font-extrabold font-mono text-[#0d9f6e] dark:text-emerald-400 mt-1">
+                                TSh 7,133,000
+                              </div>
+                              <div className="text-[11px] text-slate-500 mt-1">
+                                Verified &amp; receipted settlements
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="space-y-3 text-xs">
+                            <div className="font-bold text-slate-900 dark:text-white">
+                              Receivables by Aging Bucket (Strictly Grouped by Currency)
+                            </div>
+                            {[
+                              { bucket: 'Current (0–30 Days)', amount: 'TSh 3,009,000', pct: 55, color: 'bg-[#0d9f6e]' },
+                              { bucket: '31–60 Days Past Due', amount: 'TSh 1,720,000', pct: 32, color: 'bg-amber-500' },
+                              { bucket: '61–90+ Days Overdue', amount: 'TSh 1,000,000', pct: 18, color: 'bg-rose-500' },
+                            ].map((row, idx) => (
+                              <div key={idx} className="space-y-1">
+                                <div className="flex justify-between font-semibold">
+                                  <span className="text-slate-600 dark:text-slate-300">{row.bucket}</span>
+                                  <span className="font-mono font-bold text-slate-900 dark:text-white">{row.amount}</span>
+                                </div>
+                                <div className="h-2 w-full rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                  <div className={`h-full rounded-full ${row.color}`} style={{ width: `${row.pct}%` }} />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Tab 4: East Africa Payment Rails & Client Portal */}
+                      {heroTab === 'portal' && (
+                        <div className="p-6 sm:p-8 space-y-5">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="text-[11px] font-mono font-bold uppercase text-[#0d9f6e]">
+                                EXPIRING CLIENT PORTAL TOKEN
+                              </span>
+                              <h3 className="text-lg font-extrabold text-slate-950 dark:text-white mt-0.5">
+                                Configurable Mobile Money &amp; Bank Rails
+                              </h3>
+                            </div>
+                            <span className="rounded-full bg-slate-100 dark:bg-slate-800 px-3 py-1 text-[11px] font-mono font-bold">
+                              {activeRail.badge}
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-5 gap-2">
+                            {PAYMENT_RAILS.map((rail) => (
+                              <button
+                                key={rail.id}
+                                type="button"
+                                onClick={() => setSelectedRailId(rail.id)}
+                                className={`rounded-xl border py-2.5 px-2 text-[11px] font-extrabold transition cursor-pointer ${
+                                  selectedRailId === rail.id
+                                    ? 'border-[#0d9f6e] bg-emerald-50 dark:bg-emerald-950/70 text-[#0d9f6e] dark:text-emerald-300'
+                                    : 'border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400'
+                                }`}
+                              >
+                                {rail.name.split(' ')[0]}
+                              </button>
+                            ))}
+                          </div>
+
+                          <div className="rounded-2xl bg-slate-950 text-white p-5 space-y-2 text-xs">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-emerald-400">{activeRail.name}</span>
+                              <span className="font-mono text-slate-400">{activeRail.code}</span>
+                            </div>
+                            <p className="text-slate-300 leading-relaxed">
+                              {activeRail.settlement} • Clients view exact payment instructions on their secure invoice link and receive an instant numbered receipt once recorded.
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </Interactive3DTiltCard>
                   </div>
                 </div>
@@ -599,13 +902,13 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
             </section>
 
             {/* ---------------------------------------------------------------
-                INFINITE FINTECH CAPABILITIES MARQUEE TICKER
+                SECTION 2: INFINITE ARCHITECTURAL CAPABILITIES TICKER
                --------------------------------------------------------------- */}
-            <div className="w-full overflow-hidden bg-slate-900 dark:bg-slate-900/90 border-b border-slate-800 py-3.5 text-white">
-              <div className="animate-marquee flex items-center gap-10 text-xs font-extrabold tracking-wider uppercase">
-                {[...MARQUEE_CAPABILITIES, ...MARQUEE_CAPABILITIES].map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-3 shrink-0">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400 inline-block" />
+            <div className="w-full overflow-hidden bg-slate-950 border-b border-slate-800 py-4 text-white">
+              <div className="animate-marquee flex items-center gap-12 text-xs font-extrabold tracking-widest uppercase">
+                {[...MARQUEE_PILLARS, ...MARQUEE_PILLARS].map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-3.5 shrink-0">
+                    <span className="h-2 w-2 rounded-full bg-[#0d9f6e] inline-block" />
                     <span className="text-slate-200">{item}</span>
                   </div>
                 ))}
@@ -613,565 +916,417 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
             </div>
 
             {/* ---------------------------------------------------------------
-                SECTION 2: ALL-IN-ONE INVOICE PLATFORM (100% Full Width, White Default / Dark Ready)
+                SECTION 3: ASYMMETRIC BENTO GRID — FINANCIAL INTEGRITY & ARCHITECTURE
                --------------------------------------------------------------- */}
-            <section className="w-full py-24 lg:py-28 bg-white dark:bg-slate-950 transition-colors duration-300">
-              <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 grid lg:grid-cols-12 gap-14 xl:gap-20 items-start">
-                {/* Left Column with Scroll-Triggered Reveal */}
-                <ScrollReveal variant="fade-right" className="lg:col-span-5 space-y-5">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 dark:bg-amber-950/50 border border-amber-200/70 dark:border-amber-800/60 px-3.5 py-1 text-xs font-bold text-slate-800 dark:text-amber-300">
-                    <Crown className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
+            <section className="w-full py-24 lg:py-32 bg-white dark:bg-[#060911] transition-colors duration-300">
+              <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 space-y-16">
+                <ScrollReveal variant="fade-up" className="max-w-3xl space-y-4">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/70 dark:border-emerald-800/70 px-3.5 py-1 text-xs font-extrabold uppercase tracking-wider text-[#0d9f6e] dark:text-emerald-400">
+                    <ShieldCheck className="h-3.5 w-3.5" />
                     <span>{t('pub.features')}</span>
                   </div>
-                  <h2 className="font-display text-3xl sm:text-5xl font-bold text-slate-900 dark:text-white leading-[1.15]">
+                  <h2 className="font-display text-3xl sm:text-5xl font-bold text-slate-950 dark:text-white leading-[1.12]">
                     {language === 'sw'
-                      ? 'Mfumo Kamili wa Ankara na Mapato'
-                      : 'All-in-One Invoice Platform'}
+                      ? 'Imeundwa kwa Usahihi wa Kifedha, Sio PDF za Kawaida Pekee.'
+                      : 'Engineered for financial integrity, not just static PDFs.'}
                   </h2>
-                  <p className="text-base text-slate-600 dark:text-slate-400 leading-relaxed max-w-xl">
-                    {language === 'sw'
-                      ? 'Simamia kazi zako kuanzia quotation ya awali hadi risiti ya mwisho kwa usahihi wa hesabu za fedha na ulinzi wa kumbukumbu.'
-                      : 'Track your entire client engagement from initial quotation to final payment receipt with clean views that make receivables management effortless.'}
+                  <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Every module in InvoicePro is backed by strict tenant isolation, auditable state transitions, and East African operational workflows.
                   </p>
-                  <div className="pt-3">
-                    <Link
-                      to="/features"
-                      className="group btn-shimmer inline-flex items-center gap-2 rounded-full bg-[#0d9f6e] px-7 py-3.5 text-xs sm:text-sm font-extrabold text-white shadow-md hover:bg-emerald-700 hover:scale-[1.03] transition-all duration-300"
-                    >
-                      <span>{language === 'sw' ? 'Tazama Huduma Zote' : 'View All Features'}</span>
-                      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                    </Link>
-                  </div>
                 </ScrollReveal>
 
-                {/* Right 2x2 Feature Grid with Staggered Scroll Reveals & Icon Micro-Animations */}
-                <div className="lg:col-span-7 grid sm:grid-cols-2 gap-8 xl:gap-10">
-                  {[
-                    {
-                      icon: Receipt,
-                      title: language === 'sw' ? 'Utengenezaji Rahisi wa Ankara' : 'Effortless Invoicing',
-                      desc:
-                        language === 'sw'
-                          ? 'Tengeneza ankara, proforma na quotation za Kiswahili au Kiingereza zenye namba zinazojipanga zenyewe.'
-                          : 'Create professional commercial invoices, proformas, and estimates with sequential numbering and decimal-safe totals.',
-                    },
-                    {
-                      icon: Zap,
-                      title: language === 'sw' ? 'Ufuatiliaji wa Kiotomatiki' : 'Automation At Its Best',
-                      desc:
-                        language === 'sw'
-                          ? 'Vikumbusho vya malipo, ubadilishaji wa quotation kuwa ankara, na uzimaji wa vikumbusho ankara ikilipwa.'
-                          : 'Convert accepted quotes in one click, queue overdue reminders, and auto-suppress notifications when balance reaches zero.',
-                    },
-                    {
-                      icon: Cloud,
-                      title: language === 'sw' ? 'Usalama wa Taarifa (RLS)' : 'Save With Cloud & RLS',
-                      desc:
-                        language === 'sw'
-                          ? 'Kila biashara inalindwa kwa Row Level Security na mgawanyo wa majukumu (Mmiliki, Mhasibu, Mauzo).'
-                          : 'Protected by PostgreSQL Row Level Security and strict role permissions for Owners, Accountants, and Sales staff.',
-                    },
-                    {
-                      icon: Globe,
-                      title: language === 'sw' ? 'Tayari kwa Afrika Mashariki' : 'East Africa Multi-Currency',
-                      desc:
-                        language === 'sw'
-                          ? 'Inafanya kazi kwa TZS, KES, UGX, RWF na USD bila kuchanganya sarafu tofauti kwenye ripoti.'
-                          : 'Built for Tanzania, Kenya, Uganda, and Rwanda with configurable VAT rates and strict currency-grouped reporting.',
-                    },
-                  ].map((item, idx) => (
-                    <ScrollReveal key={idx} variant="fade-up" delayMs={idx * 110}>
-                      <div className="group premium-card-lift h-full rounded-3xl border border-slate-100 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-900/60 p-7 space-y-3.5">
-                        <div className="h-12 w-12 rounded-2xl bg-[#e6f8f1] dark:bg-emerald-950/70 text-[#0d9f6e] dark:text-emerald-400 group-hover:bg-[#0d9f6e] group-hover:text-white flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6 shadow-xs">
-                          <item.icon className="h-6 w-6" />
-                        </div>
-                        <h3 className="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight group-hover:text-[#0d9f6e] dark:group-hover:text-emerald-400 transition-colors">
-                          {item.title}
-                        </h3>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                          {item.desc}
-                        </p>
-                      </div>
-                    </ScrollReveal>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* ---------------------------------------------------------------
-                SECTION 3: 100% FULL-WIDTH MINT SHOWCASE — BENTO CARDS + DONUT CHART
-               --------------------------------------------------------------- */}
-            <section className="w-full py-24 lg:py-28 bg-[#ebfaf4] dark:bg-slate-900/80 transition-colors duration-300">
-              <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 space-y-28">
-                {/* Part A: Bento Cards on Left + "Invoicing Solution For All" on Right */}
-                <div className="grid lg:grid-cols-12 gap-14 xl:gap-20 items-center">
-                  {/* Left 2x2 Bento Mosaic with Staggered Scale-Up Reveals */}
-                  <div className="lg:col-span-6 grid sm:grid-cols-2 gap-5">
-                    {/* Card 1: Dark Navy Template Card */}
-                    <ScrollReveal variant="scale-up" delayMs={0}>
-                      <div className="premium-card-lift h-full rounded-3xl bg-[#1e2538] p-7 text-white space-y-4 shadow-lg">
-                        <span className="inline-block rounded-md bg-amber-400 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-950">
-                          New
-                        </span>
-                        <div className="text-base sm:text-lg font-extrabold leading-snug">
-                          {language === 'sw'
-                            ? 'Nyaraka za Kiswahili na Kiingereza'
-                            : "We've Added Bilingual Templates"}
-                        </div>
-                        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                          {language === 'sw'
-                            ? 'Chapisha au pakua PDF za ankara na risiti kwa lugha anayoipenda mteja wako.'
-                            : 'Generate branded commercial invoices, quotations, and receipts in English or Kiswahili.'}
-                        </p>
-                        <Link
-                          to={currentUser ? '/app/invoices' : '/register'}
-                          className="group inline-flex items-center gap-1.5 rounded-full bg-white px-5 py-2 text-xs font-extrabold text-slate-900 hover:bg-emerald-50 transition-all duration-300 hover:scale-105"
-                        >
-                          <span>{language === 'sw' ? 'Fungua Sasa' : 'Download Now'}</span>
-                          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
-                        </Link>
-                      </div>
-                    </ScrollReveal>
-
-                    {/* Right Column of Bento Stack */}
-                    <div className="space-y-5">
-                      {/* Card 2: White Quotation Card */}
-                      <ScrollReveal variant="fade-up" delayMs={100}>
-                        <div className="premium-card-lift rounded-3xl bg-white dark:bg-slate-900 p-5 shadow-sm border border-emerald-100 dark:border-slate-800 flex items-start gap-3.5 text-slate-800 dark:text-slate-100">
-                          <div className="h-11 w-11 rounded-full bg-[#0d9f6e] text-white flex items-center justify-center shrink-0">
-                            <FileCheck2 className="h-5 w-5" />
-                          </div>
-                          <div>
-                            <div className="text-sm font-extrabold">Quotations & Proformas</div>
-                            <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                              Effortlessly track revisions and convert accepted estimates.
-                            </div>
-                          </div>
-                        </div>
-                      </ScrollReveal>
-
-                      {/* Card 3: Emerald 18% Configurable VAT Pill */}
-                      <ScrollReveal variant="fade-up" delayMs={180}>
-                        <div className="premium-card-lift rounded-3xl bg-[#0d9f6e] p-5 text-white shadow-md flex items-center gap-4">
-                          <span className="text-3xl font-extrabold tracking-tight">
-                            <AnimatedCounter value={18} suffix="%" />
+                {/* 12-Column Asymmetric Bento Grid */}
+                <div className="grid lg:grid-cols-12 gap-6 xl:gap-8">
+                  {/* Bento 1 (7 Cols): Issued-Invoice Immutability & Credit Notes */}
+                  <ScrollReveal variant="fade-up" delayMs={0} className="lg:col-span-7">
+                    <div className="premium-card-lift h-full rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-7 sm:p-9 flex flex-col justify-between gap-6">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-100/80 dark:bg-emerald-950 text-[#0d9f6e] dark:text-emerald-400 px-3 py-1 text-xs font-extrabold">
+                            <Lock className="h-3.5 w-3.5" />
+                            Audit-Ready Immutability
                           </span>
-                          <span className="text-xs text-emerald-50 leading-snug font-medium">
-                            Configurable VAT & Tax Rates per Country & Item
-                          </span>
-                        </div>
-                      </ScrollReveal>
-
-                      {/* Card 4: Verified Client Pill */}
-                      <ScrollReveal variant="fade-up" delayMs={260}>
-                        <div className="premium-card-lift rounded-3xl bg-white dark:bg-slate-900 p-4 shadow-sm border border-emerald-100 dark:border-slate-800 flex items-center justify-between text-slate-800 dark:text-slate-100">
-                          <div className="flex items-center gap-3">
-                            <span className="h-10 w-10 rounded-full bg-slate-900 text-teal-400 font-extrabold text-xs flex items-center justify-center">
-                              SL
-                            </span>
-                            <div>
-                              <div className="text-xs sm:text-sm font-extrabold">Serengeti Logistics</div>
-                              <span className="inline-block rounded bg-amber-100 dark:bg-amber-950/80 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300">
-                                Verified Client
-                              </span>
-                            </div>
-                          </div>
-                          <CheckCircle2 className="h-5 w-5 text-[#0d9f6e]" />
-                        </div>
-                      </ScrollReveal>
-                    </div>
-
-                    {/* Bottom-Left Total Revenue Mini Card */}
-                    <ScrollReveal variant="fade-up" delayMs={220} className="sm:col-span-1">
-                      <div className="premium-card-lift rounded-3xl bg-white dark:bg-slate-900 p-5 shadow-sm border border-emerald-100 dark:border-slate-800 flex items-center justify-between text-slate-800 dark:text-slate-100">
-                        <div>
-                          <div className="h-8 w-8 rounded-xl bg-[#e6f8f1] dark:bg-emerald-950 text-[#0d9f6e] flex items-center justify-center mb-2">
-                            <Briefcase className="h-4 w-4" />
-                          </div>
-                          <div className="text-lg font-extrabold text-slate-900 dark:text-white">
-                            <AnimatedCounter value={4720000} prefix="TSh " />
-                          </div>
-                          <div className="text-xs text-slate-500 dark:text-slate-400">Sample Issued Invoice</div>
-                        </div>
-                        <span className="text-[11px] font-extrabold text-[#0d9f6e] bg-emerald-50 dark:bg-emerald-950/80 px-2.5 py-1 rounded-lg">
-                          100% Exact
-                        </span>
-                      </div>
-                    </ScrollReveal>
-                  </div>
-
-                  {/* Right Content: Invoicing Solution For All with Smooth Animated Accordion */}
-                  <ScrollReveal variant="fade-left" className="lg:col-span-6 space-y-5">
-                    <div className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
-                      <Crown className="h-4 w-4 text-amber-500 fill-amber-500" />
-                      <span>About InvoicePro</span>
-                    </div>
-                    <h2 className="font-display text-3xl sm:text-5xl font-bold text-slate-900 dark:text-white leading-[1.15]">
-                      {language === 'sw' ? 'Suluhisho la Ankara kwa Kila Biashara' : 'Invoicing Solution For All'}
-                    </h2>
-
-                    <div className="space-y-3.5 pt-2">
-                      {[
-                        {
-                          title: 'Custom Workflow Management',
-                          desc: 'Manage the complete document lifecycle from draft estimate to final payment receipt without losing audit history.',
-                          bullets: [
-                            'Convert accepted quotations to invoices without duplicates',
-                            'Enforce issued-document immutability with linked Credit Notes',
-                          ],
-                        },
-                        {
-                          title: 'Bill in Multiple Currencies (TZS, KES, UGX, USD)',
-                          desc: 'Issue documents in your client’s preferred currency while keeping dashboard and CSV reports strictly grouped by currency.',
-                          bullets: [
-                            'Configurable decimal and thousands separators',
-                            'Explicit exchange rate & timestamp required for cross-currency conversion',
-                          ],
-                        },
-                        {
-                          title: 'Manage Accounts Receivable & Partial Payments',
-                          desc: 'Record partial deposits via M-Pesa, Mixx by Yas, Airtel Money, or bank transfer and track remaining balances automatically.',
-                          bullets: [
-                            'Idempotent payment recording prevents double posting',
-                            'Distinguishes manual entries from provider-confirmed settlements',
-                          ],
-                        },
-                      ].map((acc, idx) => {
-                        const isOpen = activeAccordion === idx;
-                        return (
-                          <div
-                            key={idx}
-                            onClick={() => setActiveAccordion(idx)}
-                            className={`cursor-pointer rounded-2xl transition-all duration-300 p-5 ${
-                              isOpen
-                                ? 'bg-[#d4f4e7] dark:bg-emerald-950/60 border-l-4 border-[#0d9f6e] text-slate-900 dark:text-white shadow-sm translate-x-1'
-                                : 'bg-white/80 dark:bg-slate-900/70 hover:bg-white dark:hover:bg-slate-900 text-slate-800 dark:text-slate-200 border border-emerald-100 dark:border-slate-800 hover:translate-x-0.5'
-                            }`}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="text-base font-extrabold">{acc.title}</div>
-                              <ChevronDown
-                                className={`h-4 w-4 text-[#0d9f6e] transition-transform duration-300 ${
-                                  isOpen ? 'rotate-180' : ''
-                                }`}
-                              />
-                            </div>
-                            <div
-                              className={`grid transition-all duration-300 ease-out ${
-                                isOpen ? 'grid-rows-[1fr] opacity-100 mt-2.5' : 'grid-rows-[0fr] opacity-0 mt-0'
+                          <div className="inline-flex rounded-xl bg-white dark:bg-slate-800 p-1 border border-slate-200 dark:border-slate-700 text-xs font-bold">
+                            <button
+                              type="button"
+                              onClick={() => setImmutabilityDemoMode('locked')}
+                              className={`rounded-lg px-3 py-1 transition cursor-pointer ${
+                                immutabilityDemoMode === 'locked'
+                                  ? 'bg-slate-900 text-white dark:bg-[#0d9f6e]'
+                                  : 'text-slate-500'
                               }`}
                             >
-                              <div className="overflow-hidden space-y-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
-                                <p className="leading-relaxed">{acc.desc}</p>
-                                <ul className="space-y-1.5 pt-1">
-                                  {acc.bullets.map((b, j) => (
-                                    <li key={j} className="flex items-center gap-2 font-semibold">
-                                      <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" />
-                                      <span>{b}</span>
-                                    </li>
-                                  ))}
-                                </ul>
+                              Issued Lock
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setImmutabilityDemoMode('credit_note')}
+                              className={`rounded-lg px-3 py-1 transition cursor-pointer ${
+                                immutabilityDemoMode === 'credit_note'
+                                  ? 'bg-slate-900 text-white dark:bg-[#0d9f6e]'
+                                  : 'text-slate-500'
+                              }`}
+                            >
+                              Credit Note Path
+                            </button>
+                          </div>
+                        </div>
+
+                        <h3 className="text-xl sm:text-2xl font-extrabold text-slate-950 dark:text-white tracking-tight">
+                          Issued financial documents can never be silently rewritten.
+                        </h3>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                          Once an invoice moves from <code>Draft</code> to <code>Issued</code>, PostgreSQL triggers lock its line items, client, and totals. Corrections are recorded transparently via linked Credit Notes.
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl bg-white dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 p-5 text-xs space-y-3">
+                        {immutabilityDemoMode === 'locked' ? (
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                              <div className="font-mono font-bold text-slate-900 dark:text-white">
+                                trg_issued_invoice_immutability
+                              </div>
+                              <div className="text-slate-500 mt-0.5">
+                                Direct edits to issued invoice totals are rejected at the database layer.
                               </div>
                             </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </ScrollReveal>
-                </div>
-
-                {/* Part B: "An Online Invoicing Software" + Clean Reference Invoice Status Donut Card */}
-                <div className="grid lg:grid-cols-12 gap-14 xl:gap-20 items-center">
-                  <ScrollReveal variant="fade-right" className="lg:col-span-6 space-y-6">
-                    <div className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
-                      <Crown className="h-4 w-4 text-amber-500 fill-amber-500" />
-                      <span>Why Choose Us</span>
-                    </div>
-                    <h2 className="font-display text-3xl sm:text-5xl font-bold text-slate-900 dark:text-white leading-[1.15]">
-                      {language === 'sw'
-                        ? 'Mfumo wa Kisasa wa Ankara Mtandaoni'
-                        : 'An Online Invoicing Software'}
-                    </h2>
-                    <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-xl">
-                      InvoicePro clearly separates invoiced commercial value from actual cash collected, giving business owners and accountants an accurate view of receivables.
-                    </p>
-
-                    <div className="space-y-5 pt-2">
-                      <div className="group flex items-start gap-4">
-                        <div className="h-11 w-11 rounded-2xl bg-[#d1f3e6] dark:bg-emerald-950 text-[#0d9f6e] dark:text-emerald-400 group-hover:bg-[#0d9f6e] group-hover:text-white flex items-center justify-center shrink-0 mt-0.5 transition-all duration-300 group-hover:scale-110">
-                          <Clock className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <h3 className="text-base font-extrabold text-slate-900 dark:text-white">Save More Time</h3>
-                          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
-                            Reuse saved products and services, auto-generate sequential document numbers, and share expiring client portal links in seconds.
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="group flex items-start gap-4">
-                        <div className="h-11 w-11 rounded-2xl bg-[#d1f3e6] dark:bg-emerald-950 text-[#0d9f6e] dark:text-emerald-400 group-hover:bg-[#0d9f6e] group-hover:text-white flex items-center justify-center shrink-0 mt-0.5 transition-all duration-300 group-hover:scale-110">
-                          <Sparkles className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <h3 className="text-base font-extrabold text-slate-900 dark:text-white">Get More Productive</h3>
-                          <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
-                            Log billable project hours, approve team timesheets, and use the rule-based AI assistant to prioritize overdue follow-ups.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </ScrollReveal>
-
-                  {/* Right Column: Reference Donut Chart Card ("Invoice Status") with Pro Animations */}
-                  <ScrollReveal variant="scale-up" delayMs={120} className="lg:col-span-6 flex justify-center">
-                    <Interactive3DTiltCard className="w-full max-w-lg rounded-3xl bg-white dark:bg-slate-900 p-8 sm:p-10 shadow-xl border border-emerald-100 dark:border-slate-800 text-center space-y-6 text-slate-800 dark:text-slate-100">
-                      {/* Multi-Segment SVG Donut Chart matching the reference template */}
-                      <div className="relative mx-auto h-56 w-56 flex items-center justify-center">
-                        <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90 overflow-visible">
-                          <circle
-                            cx="18"
-                            cy="18"
-                            r="14"
-                            fill="transparent"
-                            stroke="currentColor"
-                            className="text-slate-100 dark:text-slate-800"
-                            strokeWidth="4.5"
-                          />
-                          {/* Emerald Segment: Paid (48%) */}
-                          <circle
-                            cx="18"
-                            cy="18"
-                            r="14"
-                            fill="transparent"
-                            stroke="#0d9f6e"
-                            strokeWidth={activeDonutMetric === 'collected' ? '5.8' : '4.5'}
-                            strokeDasharray="42 88"
-                            strokeDashoffset="0"
-                            className="transition-all duration-500 ease-out cursor-pointer"
-                            onMouseEnter={() => setActiveDonutMetric('collected')}
-                            onClick={() => setActiveDonutMetric('collected')}
-                          />
-                          {/* Coral/Red Segment: Overdue (28%) */}
-                          <circle
-                            cx="18"
-                            cy="18"
-                            r="14"
-                            fill="transparent"
-                            stroke="#ef4444"
-                            strokeWidth={activeDonutMetric === 'overdue' ? '5.8' : '4.5'}
-                            strokeDasharray="25 88"
-                            strokeDashoffset="-43"
-                            className="transition-all duration-500 ease-out cursor-pointer"
-                            onMouseEnter={() => setActiveDonutMetric('overdue')}
-                            onClick={() => setActiveDonutMetric('overdue')}
-                          />
-                          {/* Amber Segment: Partially Paid / Issued (24%) */}
-                          <circle
-                            cx="18"
-                            cy="18"
-                            r="14"
-                            fill="transparent"
-                            stroke="#f59e0b"
-                            strokeWidth={activeDonutMetric === 'outstanding' ? '5.8' : '4.5'}
-                            strokeDasharray="20 88"
-                            strokeDashoffset="-69"
-                            className="transition-all duration-500 ease-out cursor-pointer"
-                            onMouseEnter={() => setActiveDonutMetric('outstanding')}
-                            onClick={() => setActiveDonutMetric('outstanding')}
-                          />
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                          <span className="text-sm font-extrabold text-slate-900 dark:text-white">Invoice</span>
-                          <span className="text-sm font-extrabold text-slate-900 dark:text-white">Status</span>
-                        </div>
-                      </div>
-
-                      {/* Interactive Legend Row with Animated Counters */}
-                      <div className="grid grid-cols-3 gap-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
-                        <button
-                          type="button"
-                          onClick={() => setActiveDonutMetric('collected')}
-                          className={`rounded-xl p-2.5 transition-all duration-300 cursor-pointer ${
-                            activeDonutMetric === 'collected'
-                              ? 'bg-emerald-50 dark:bg-emerald-950/60 ring-1 ring-[#0d9f6e] -translate-y-0.5'
-                              : 'hover:bg-slate-50 dark:hover:bg-slate-800'
-                          }`}
-                        >
-                          <div className="text-slate-500 dark:text-slate-400">Cash Collected</div>
-                          <div className="font-extrabold text-[#0d9f6e] dark:text-emerald-400 mt-1">
-                            <AnimatedCounter value={7133000} prefix="TSh " />
-                          </div>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setActiveDonutMetric('outstanding')}
-                          className={`rounded-xl p-2.5 transition-all duration-300 cursor-pointer ${
-                            activeDonutMetric === 'outstanding'
-                              ? 'bg-amber-50 dark:bg-amber-950/60 ring-1 ring-amber-500 -translate-y-0.5'
-                              : 'hover:bg-slate-50 dark:hover:bg-slate-800'
-                          }`}
-                        >
-                          <div className="text-slate-500 dark:text-slate-400">Outstanding</div>
-                          <div className="font-extrabold text-amber-600 dark:text-amber-400 mt-1">
-                            <AnimatedCounter value={3009000} prefix="TSh " />
-                          </div>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setActiveDonutMetric('overdue')}
-                          className={`rounded-xl p-2.5 transition-all duration-300 cursor-pointer ${
-                            activeDonutMetric === 'overdue'
-                              ? 'bg-red-50 dark:bg-red-950/60 ring-1 ring-red-500 -translate-y-0.5'
-                              : 'hover:bg-slate-50 dark:hover:bg-slate-800'
-                          }`}
-                        >
-                          <div className="text-slate-500 dark:text-slate-400">Overdue</div>
-                          <div className="font-extrabold text-red-600 dark:text-red-400 mt-1">
-                            <AnimatedCounter value={2720000} prefix="TSh " />
-                          </div>
-                        </button>
-                      </div>
-                    </Interactive3DTiltCard>
-                  </ScrollReveal>
-                </div>
-              </div>
-            </section>
-
-            {/* ---------------------------------------------------------------
-                SECTION 4: HOW DOES IT WORK + LIVE DECIMAL-SAFE SANDBOX
-               --------------------------------------------------------------- */}
-            <section className="w-full py-24 lg:py-28 bg-white dark:bg-slate-950 transition-colors duration-300">
-              <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 space-y-20">
-                <div className="space-y-14">
-                  <ScrollReveal variant="fade-up" className="text-center max-w-2xl mx-auto space-y-3">
-                    <div className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
-                      <Crown className="h-4 w-4 text-amber-500 fill-amber-500" />
-                      <span>Process</span>
-                    </div>
-                    <h2 className="font-display text-3xl sm:text-5xl font-bold text-slate-900 dark:text-white">
-                      {language === 'sw' ? 'Jinsi Mfumo Unavyofanya Kazi' : 'How Does It Work'}
-                    </h2>
-                    <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">
-                      From client quotation and project timesheets to verified payment receipts in three structured steps.
-                    </p>
-                  </ScrollReveal>
-
-                  <div className="grid md:grid-cols-3 gap-8 xl:gap-10">
-                    {/* Step Card 1: Soft Cream */}
-                    <ScrollReveal variant="fade-up" delayMs={0}>
-                      <div className="group premium-card-lift h-full rounded-3xl bg-[#fdf8e7] dark:bg-slate-900 dark:border dark:border-amber-900/40 p-7 sm:p-8 space-y-6 text-slate-800 dark:text-slate-100">
-                        <div className="rounded-2xl bg-white dark:bg-slate-800 p-5 shadow-xs space-y-3.5 transition-transform duration-300 group-hover:-translate-y-1">
-                          <div className="text-xs font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">
-                            Proposals & Quotes
-                          </div>
-                          <div className="flex items-center gap-3 text-xs sm:text-sm">
-                            <span className="h-7 w-7 rounded-full bg-amber-400 text-slate-950 font-extrabold flex items-center justify-center text-xs transition-transform duration-300 group-hover:scale-110">
-                              01
+                            <span className="rounded-xl bg-amber-100 dark:bg-amber-950/80 text-amber-900 dark:text-amber-300 px-3 py-1.5 font-mono font-bold shrink-0">
+                              SILENT EDIT BLOCKED
                             </span>
-                            <span className="font-semibold text-slate-700 dark:text-slate-200">Approved Quotation</span>
                           </div>
-                          <div className="flex items-center gap-3 text-xs sm:text-sm">
-                            <span className="h-7 w-7 rounded-full bg-[#0d9f6e] text-white font-extrabold flex items-center justify-center text-xs transition-transform duration-300 group-hover:scale-110">
-                              02
-                            </span>
-                            <span className="font-semibold text-slate-700 dark:text-slate-200">Billable Project Hours</span>
-                          </div>
-                        </div>
-                        <div className="text-center space-y-2 px-2">
-                          <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
-                            Track Time, Expenses & Quotes
-                          </h3>
-                          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                            Create client quotations, log approved project hours, and convert directly into sequential commercial invoices.
-                          </p>
-                        </div>
-                      </div>
-                    </ScrollReveal>
-
-                    {/* Step Card 2: Soft Mint */}
-                    <ScrollReveal variant="fade-up" delayMs={120}>
-                      <div className="group premium-card-lift h-full rounded-3xl bg-[#eafaf4] dark:bg-slate-900 dark:border dark:border-emerald-900/40 p-7 sm:p-8 space-y-6 text-slate-800 dark:text-slate-100">
-                        <div className="rounded-2xl bg-white dark:bg-slate-800 p-5 shadow-xs space-y-3.5 transition-transform duration-300 group-hover:-translate-y-1">
-                          <div className="text-xs font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">
-                            Revenue Flow
-                          </div>
-                          <div className="h-24 flex items-end justify-between gap-2.5 pt-2 px-3">
-                            {[45, 75, 55, 95, 65, 85].map((h, i) => (
-                              <div key={i} className="w-full flex flex-col items-center gap-1 h-full justify-end">
-                                <div
-                                  style={{ height: `${h}%`, animationDelay: `${i * 90}ms` }}
-                                  className={`w-3 rounded-t-full animate-bar-grow transition-transform duration-300 group-hover:scale-y-105 ${
-                                    i % 2 === 0 ? 'bg-[#0d9f6e]' : 'bg-emerald-200 dark:bg-emerald-800'
-                                  }`}
-                                />
+                        ) : (
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                              <div className="font-mono font-bold text-[#0d9f6e] dark:text-emerald-400">
+                                CN-2026-0001 → Linked to INV-2026-0014
                               </div>
+                              <div className="text-slate-500 mt-0.5">
+                                Original invoice preserved • Receivable balance adjusted by -TSh 500,000
+                              </div>
+                            </div>
+                            <span className="rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-300 px-3 py-1.5 font-mono font-bold shrink-0">
+                              AUDITED ADJUSTMENT
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </ScrollReveal>
+
+                  {/* Bento 2 (5 Cols): Idempotent Mobile Money & Bank Settlements */}
+                  <ScrollReveal variant="fade-up" delayMs={100} className="lg:col-span-5">
+                    <div className="premium-card-lift h-full rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-slate-950 text-white p-7 sm:p-9 flex flex-col justify-between gap-6">
+                      <div className="space-y-3">
+                        <span className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1 text-xs font-extrabold">
+                          <Smartphone className="h-3.5 w-3.5" />
+                          East Africa Collections
+                        </span>
+                        <h3 className="text-xl sm:text-2xl font-extrabold tracking-tight">
+                          Partial deposits, M-Pesa references &amp; instant receipts.
+                        </h3>
+                        <p className="text-sm text-slate-300 leading-relaxed">
+                          Record multiple payments against a single invoice with idempotency protection and clear separation between manual entries and provider-confirmed settlements.
+                        </p>
+                      </div>
+
+                      <div className="space-y-2.5 text-xs">
+                        <div className="rounded-xl bg-white/5 border border-white/10 px-4 py-3 flex items-center justify-between">
+                          <div>
+                            <div className="font-bold text-white">M-Pesa Lipa Namba</div>
+                            <div className="text-[11px] text-slate-400 font-mono">Ref: MPESA-884120TZ</div>
+                          </div>
+                          <span className="rounded-lg bg-emerald-500/20 text-emerald-300 px-2.5 py-1 font-mono font-bold">
+                            +TSh 2,000,000
+                          </span>
+                        </div>
+                        <div className="rounded-xl bg-white/5 border border-white/10 px-4 py-3 flex items-center justify-between">
+                          <div>
+                            <div className="font-bold text-white">CRDB Bank RTGS</div>
+                            <div className="text-[11px] text-slate-400 font-mono">Ref: CRDB-EFT-99201</div>
+                          </div>
+                          <span className="rounded-lg bg-emerald-500/20 text-emerald-300 px-2.5 py-1 font-mono font-bold">
+                            +TSh 2,720,000
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </ScrollReveal>
+
+                  {/* Bento 3 (4 Cols): Multi-Currency Discipline */}
+                  <ScrollReveal variant="fade-up" delayMs={140} className="lg:col-span-4">
+                    <div className="premium-card-lift h-full rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-7 flex flex-col justify-between gap-6">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-100/80 dark:bg-emerald-950 text-[#0d9f6e] dark:text-emerald-400 px-3 py-1 text-xs font-extrabold">
+                            <Globe className="h-3.5 w-3.5" />
+                            Multi-Currency
+                          </span>
+                          <div className="flex gap-1">
+                            {(['TZS', 'KES', 'USD'] as const).map((cur) => (
+                              <button
+                                key={cur}
+                                type="button"
+                                onClick={() => setBentoCurrency(cur)}
+                                className={`rounded-lg px-2.5 py-1 text-[11px] font-extrabold transition cursor-pointer ${
+                                  bentoCurrency === cur
+                                    ? 'bg-[#0d9f6e] text-white'
+                                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                                }`}
+                              >
+                                {cur}
+                              </button>
                             ))}
                           </div>
                         </div>
-                        <div className="text-center space-y-2 px-2">
-                          <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
-                            Your Finances In One Place
-                          </h3>
-                          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                            Distinguish total invoiced value from cash actually collected across aging buckets and currencies.
-                          </p>
-                        </div>
-                      </div>
-                    </ScrollReveal>
-
-                    {/* Step Card 3: Soft Warm Peach */}
-                    <ScrollReveal variant="fade-up" delayMs={240}>
-                      <div className="group premium-card-lift h-full rounded-3xl bg-[#fef4e8] dark:bg-slate-900 dark:border dark:border-orange-900/40 p-7 sm:p-8 space-y-6 text-slate-800 dark:text-slate-100">
-                        <div className="rounded-2xl bg-white dark:bg-slate-800 p-5 shadow-xs space-y-3 transition-transform duration-300 group-hover:-translate-y-1">
-                          <div className="text-xs font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">
-                            All Transactions
-                          </div>
-                          <div className="flex items-center justify-between rounded-xl bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs transition-transform duration-300 group-hover:translate-x-1">
-                            <span className="font-semibold">M-Pesa Lipa Namba</span>
-                            <span className="text-[#0d9f6e] dark:text-emerald-400 font-extrabold">
-                              +<AnimatedCounter value={2000000} />
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between rounded-xl bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs transition-transform duration-300 delay-75 group-hover:translate-x-1">
-                            <span className="font-semibold">CRDB Bank RTGS</span>
-                            <span className="text-[#0d9f6e] dark:text-emerald-400 font-extrabold">
-                              +<AnimatedCounter value={5133000} />
-                            </span>
-                          </div>
-                        </div>
-                        <div className="text-center space-y-2 px-2">
-                          <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
-                            Record & Verify Payments
-                          </h3>
-                          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                            Allocate partial or full payments with idempotency protection and generate instant sequential receipts.
-                          </p>
-                        </div>
-                      </div>
-                    </ScrollReveal>
-                  </div>
-                </div>
-
-                {/* INTERACTIVE DECIMAL-SAFE INVOICE & VAT SANDBOX WIDGET */}
-                <ScrollReveal variant="fade-up" delayMs={100}>
-                  <div className="rounded-3xl border border-emerald-100 dark:border-slate-800 bg-gradient-to-br from-[#f4fcf9] via-white to-[#ebfaf4] dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950/30 p-8 sm:p-10 lg:p-12 shadow-lg">
-                    <div className="grid lg:grid-cols-12 gap-10 items-center">
-                      <div className="lg:col-span-7 space-y-6">
-                        <div className="inline-flex items-center gap-2 rounded-full bg-[#0d9f6e]/10 dark:bg-emerald-950 px-3.5 py-1 text-xs font-extrabold text-[#0d9f6e] dark:text-emerald-400">
-                          <Calculator className="h-3.5 w-3.5" />
-                          <span>Interactive Decimal-Safe Calculation Engine</span>
-                        </div>
-                        <h3 className="font-display text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white">
-                          {language === 'sw'
-                            ? 'Jaribu Kikokotoo cha Ankara, VAT na Malipo ya Awamu'
-                            : 'Test Our Live Invoice, VAT & Partial Payment Engine'}
+                        <h3 className="text-lg font-extrabold text-slate-950 dark:text-white">
+                          Zero silent currency mixing.
                         </h3>
                         <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                          Every calculation in InvoicePro runs through our exact integer minor-unit (`BigInt`) financial engine—never floating-point approximations. Adjust the values below to preview real-time invoice and partial deposit reconciliation.
+                          Dashboards and CSV exports group receivables strictly by currency (TZS, KES, UGX, RWF, USD, EUR, GBP).
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl bg-white dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 p-4 space-y-2 text-xs">
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Invoiced ({bentoCurrency})</span>
+                          <span className="font-mono font-bold text-slate-900 dark:text-white">{bentoCurrencyData.invoiced}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Collected ({bentoCurrency})</span>
+                          <span className="font-mono font-bold text-[#0d9f6e] dark:text-emerald-400">{bentoCurrencyData.collected}</span>
+                        </div>
+                        <div className="flex justify-between pt-1 border-t border-slate-100 dark:border-slate-800">
+                          <span className="text-slate-500">Default Tax Profile</span>
+                          <span className="font-semibold text-slate-800 dark:text-slate-200">{bentoCurrencyData.taxLabel}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </ScrollReveal>
+
+                  {/* Bento 4 (4 Cols): Projects, Milestones & Billable Time */}
+                  <ScrollReveal variant="fade-up" delayMs={200} className="lg:col-span-4">
+                    <div className="premium-card-lift h-full rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-7 flex flex-col justify-between gap-6">
+                      <div className="space-y-3">
+                        <span className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-100/80 dark:bg-emerald-950 text-[#0d9f6e] dark:text-emerald-400 px-3 py-1 text-xs font-extrabold">
+                          <Clock className="h-3.5 w-3.5" />
+                          Projects &amp; Time
+                        </span>
+                        <h3 className="text-lg font-extrabold text-slate-950 dark:text-white">
+                          Turn approved hours &amp; milestones into invoices.
+                        </h3>
+                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                          Track project budgets, approve consultant timesheets, and link billable work directly to client invoices.
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl bg-white dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 p-4 space-y-2.5 text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-900 dark:text-white">System Audit &amp; Advisory</span>
+                          <span className="rounded bg-emerald-100 dark:bg-emerald-950 text-[#0d9f6e] dark:text-emerald-300 px-2 py-0.5 text-[10px] font-bold">
+                            14.5 hrs Approved
+                          </span>
+                        </div>
+                        <div className="text-slate-500">
+                          Rate: TSh 120,000/hr → Ready for one-click invoice line item import.
+                        </div>
+                      </div>
+                    </div>
+                  </ScrollReveal>
+
+                  {/* Bento 5 (4 Cols): Bilingual English & Kiswahili Documents */}
+                  <ScrollReveal variant="fade-up" delayMs={260} className="lg:col-span-4">
+                    <div className="premium-card-lift h-full rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-slate-50/70 dark:bg-slate-900/60 p-7 flex flex-col justify-between gap-6">
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-100/80 dark:bg-emerald-950 text-[#0d9f6e] dark:text-emerald-400 px-3 py-1 text-xs font-extrabold">
+                            <FileText className="h-3.5 w-3.5" />
+                            Bilingual PDFs
+                          </span>
+                          <div className="flex gap-1">
+                            {(['en', 'sw'] as const).map((lng) => (
+                              <button
+                                key={lng}
+                                type="button"
+                                onClick={() => setBentoDocLang(lng)}
+                                className={`rounded-lg px-2.5 py-1 text-[11px] font-extrabold uppercase transition cursor-pointer ${
+                                  bentoDocLang === lng
+                                    ? 'bg-[#0d9f6e] text-white'
+                                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300'
+                                }`}
+                              >
+                                {lng}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <h3 className="text-lg font-extrabold text-slate-950 dark:text-white">
+                          English &amp; Kiswahili document rendering.
+                        </h3>
+                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                          Switch invoice, quotation, proforma, and receipt templates between English and Kiswahili per business or document.
+                        </p>
+                      </div>
+
+                      <div className="rounded-2xl bg-white dark:bg-slate-950 border border-slate-200/80 dark:border-slate-800 p-4 text-xs space-y-1.5">
+                        <div className="font-mono font-extrabold text-[#0d9f6e] dark:text-emerald-400">
+                          {bentoDocLang === 'sw' ? 'ANKARA YA MALIPO • INV-2026-0014' : 'COMMERCIAL INVOICE • INV-2026-0014'}
+                        </div>
+                        <div className="text-slate-500">
+                          {bentoDocLang === 'sw'
+                            ? 'Jumla Ndogo • Kodi ya Ongezeko la Thamani (VAT 18%) • Salio Linalodaiwa'
+                            : 'Subtotal • Value Added Tax (VAT 18%) • Remaining Balance Due'}
+                        </div>
+                      </div>
+                    </div>
+                  </ScrollReveal>
+                </div>
+              </div>
+            </section>
+
+            {/* ---------------------------------------------------------------
+                SECTION 4: INTERACTIVE 4-STAGE WORKFLOW SCRUBBER
+               --------------------------------------------------------------- */}
+            <section className="w-full py-24 lg:py-32 bg-slate-50 dark:bg-[#090e1a] border-y border-slate-200/80 dark:border-slate-800/80 transition-colors duration-300">
+              <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 space-y-16">
+                <ScrollReveal variant="fade-up" className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+                  <div className="space-y-3 max-w-2xl">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3.5 py-1 text-xs font-extrabold uppercase tracking-wider text-[#0d9f6e] dark:text-emerald-400">
+                      <Zap className="h-3.5 w-3.5" />
+                      <span>End-to-End Billing Workflow</span>
+                    </span>
+                    <h2 className="font-display text-3xl sm:text-5xl font-bold text-slate-950 dark:text-white leading-[1.12]">
+                      {language === 'sw'
+                        ? 'Kuanzia Quotation ya Kwanza Hadi Risiti Iliyothibitishwa.'
+                        : 'From first client scope to verified payment receipt.'}
+                    </h2>
+                  </div>
+                  <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400 max-w-md">
+                    Click any step below to inspect how InvoicePro enforces role-based permissions and audit trails at every transition.
+                  </p>
+                </ScrollReveal>
+
+                <div className="grid lg:grid-cols-12 gap-10 xl:gap-14 items-center">
+                  {/* Left 5 Columns: Step Selector Buttons */}
+                  <div className="lg:col-span-5 space-y-3.5">
+                    {workflowSteps.map((ws, idx) => {
+                      const isSelected = activeWorkflowStep === idx;
+                      return (
+                        <button
+                          key={ws.step}
+                          type="button"
+                          onClick={() => setActiveWorkflowStep(idx)}
+                          className={`w-full text-left rounded-2xl p-5 border transition-all duration-300 cursor-pointer ${
+                            isSelected
+                              ? 'bg-white dark:bg-slate-900 border-[#0d9f6e] shadow-lg shadow-emerald-950/5 translate-x-1'
+                              : 'bg-white/60 dark:bg-slate-900/40 border-slate-200/80 dark:border-slate-800/80 hover:bg-white dark:hover:bg-slate-900'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3.5">
+                              <span
+                                className={`h-9 w-9 rounded-xl font-mono text-xs font-extrabold flex items-center justify-center transition-colors ${
+                                  isSelected
+                                    ? 'bg-[#0d9f6e] text-white'
+                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                }`}
+                              >
+                                {ws.step}
+                              </span>
+                              <div>
+                                <div className="text-sm sm:text-base font-extrabold text-slate-950 dark:text-white">
+                                  {ws.title}
+                                </div>
+                                <div className="text-[11px] font-mono text-slate-500 mt-0.5">
+                                  Role: {ws.role} • {ws.docCode}
+                                </div>
+                              </div>
+                            </div>
+                            <ArrowRight
+                              className={`h-4 w-4 transition-transform duration-300 ${
+                                isSelected ? 'text-[#0d9f6e] translate-x-1' : 'text-slate-400'
+                              }`}
+                            />
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Right 7 Columns: Active Step Detailed Architectural Preview */}
+                  <div className="lg:col-span-7">
+                    <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-800 p-8 sm:p-10 shadow-xl space-y-6">
+                      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
+                        <div>
+                          <span className="text-xs font-mono font-extrabold uppercase tracking-wider text-[#0d9f6e] dark:text-emerald-400">
+                            STEP {workflowSteps[activeWorkflowStep].step} • {workflowSteps[activeWorkflowStep].role}
+                          </span>
+                          <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-950 dark:text-white mt-1">
+                            {workflowSteps[activeWorkflowStep].title}
+                          </h3>
+                        </div>
+                        <span className="rounded-full bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 px-3.5 py-1.5 text-xs font-mono font-extrabold text-[#0d9f6e] dark:text-emerald-300">
+                          {workflowSteps[activeWorkflowStep].status}
+                        </span>
+                      </div>
+
+                      <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
+                        {workflowSteps[activeWorkflowStep].desc}
+                      </p>
+
+                      <div className="grid sm:grid-cols-3 gap-3 pt-2">
+                        {workflowSteps[activeWorkflowStep].highlights.map((hl, i) => (
+                          <div
+                            key={i}
+                            className="rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/60 dark:border-slate-800 p-4 space-y-2"
+                          >
+                            <CheckCircle2 className="h-4 w-4 text-[#0d9f6e]" />
+                            <div className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-snug">
+                              {hl}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="pt-3 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500">
+                        <span>Document Reference: <strong className="font-mono text-slate-800 dark:text-slate-200">{workflowSteps[activeWorkflowStep].docCode}</strong></span>
+                        <Link
+                          to={currentUser ? '/app' : '/register'}
+                          className="inline-flex items-center gap-1.5 font-extrabold text-[#0d9f6e] dark:text-emerald-400 hover:underline"
+                        >
+                          <span>Try this workflow in the app</span>
+                          <ArrowRight className="h-3.5 w-3.5" />
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {/* ---------------------------------------------------------------
+                SECTION 5: INTERACTIVE DECIMAL-SAFE INVOICE & VAT SANDBOX
+               --------------------------------------------------------------- */}
+            <section className="w-full py-24 lg:py-32 bg-white dark:bg-[#060911] transition-colors duration-300">
+              <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24">
+                <ScrollReveal variant="fade-up">
+                  <div className="rounded-3xl border border-slate-200/90 dark:border-slate-800 bg-gradient-to-br from-slate-50 via-white to-emerald-50/40 dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950/20 p-8 sm:p-12 shadow-lg">
+                    <div className="grid lg:grid-cols-12 gap-10 xl:gap-14 items-center">
+                      <div className="lg:col-span-7 space-y-6">
+                        <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 px-3.5 py-1 text-xs font-extrabold text-[#0d9f6e] dark:text-emerald-400">
+                          <Calculator className="h-3.5 w-3.5" />
+                          <span>Interactive Decimal-Safe Calculation Sandbox</span>
+                        </div>
+                        <h2 className="font-display text-3xl sm:text-4xl font-bold text-slate-950 dark:text-white">
+                          {language === 'sw'
+                            ? 'Jaribu Kikokotoo cha Ankara, VAT na Malipo ya Awamu'
+                            : 'Test our exact minor-unit invoice, VAT & deposit engine.'}
+                        </h2>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                          Floating-point math causes rounding drift on multi-line VAT invoices. InvoicePro computes every subtotal, discount, tax, and partial payment allocation in exact integer minor units (`BigInt`).
                         </p>
 
-                        <div className="grid sm:grid-cols-3 gap-4 text-xs">
+                        <div className="grid sm:grid-cols-4 gap-4 text-xs">
                           <div>
                             <label className="block font-bold uppercase text-slate-500 dark:text-slate-400 mb-1.5">
                               Currency
@@ -1184,8 +1339,21 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                               <option value="TZS">TZS (TSh)</option>
                               <option value="KES">KES (KSh)</option>
                               <option value="UGX">UGX (USh)</option>
+                              <option value="RWF">RWF (FRw)</option>
                               <option value="USD">USD ($)</option>
                             </select>
+                          </div>
+                          <div>
+                            <label className="block font-bold uppercase text-slate-500 dark:text-slate-400 mb-1.5">
+                              Quantity
+                            </label>
+                            <input
+                              type="number"
+                              min="1"
+                              value={sandboxQty}
+                              onChange={(e) => setSandboxQty(e.target.value)}
+                              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 font-extrabold"
+                            />
                           </div>
                           <div>
                             <label className="block font-bold uppercase text-slate-500 dark:text-slate-400 mb-1.5">
@@ -1201,16 +1369,16 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                           </div>
                           <div>
                             <label className="block font-bold uppercase text-slate-500 dark:text-slate-400 mb-1.5">
-                              Configurable VAT (%)
+                              VAT Rate (%)
                             </label>
                             <select
                               value={sandboxTaxRate}
                               onChange={(e) => setSandboxTaxRate(e.target.value)}
                               className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 font-extrabold"
                             >
-                              <option value="18.00">18% (Tanzania / Uganda / Rwanda)</option>
-                              <option value="16.00">16% (Kenya Standard)</option>
-                              <option value="0.00">0% (Exempt / Zero-Rated)</option>
+                              <option value="18.00">18% (TZ / UG / RW)</option>
+                              <option value="16.00">16% (Kenya)</option>
+                              <option value="0.00">0% (Exempt)</option>
                             </select>
                           </div>
                         </div>
@@ -1223,15 +1391,15 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                             <span className="text-[#0d9f6e] dark:text-emerald-400">{sandboxDepositPercent}% Paid</span>
                           </div>
                           <div className="flex gap-2">
-                            {[0, 30, 50, 75, 100].map((pct) => (
+                            {[0, 25, 50, 75, 100].map((pct) => (
                               <button
                                 key={pct}
                                 type="button"
                                 onClick={() => setSandboxDepositPercent(pct)}
-                                className={`flex-1 rounded-xl py-2 text-xs font-extrabold transition-all duration-300 cursor-pointer ${
+                                className={`flex-1 rounded-xl py-2.5 text-xs font-extrabold transition-all duration-200 cursor-pointer ${
                                   sandboxDepositPercent === pct
-                                    ? 'bg-[#0d9f6e] text-white shadow-sm -translate-y-0.5'
-                                    : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:-translate-y-0.5'
+                                    ? 'bg-[#0d9f6e] text-white shadow-sm'
+                                    : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
                                 }`}
                               >
                                 {pct}%
@@ -1242,43 +1410,43 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                       </div>
 
                       {/* Live Calculated Output Card */}
-                      <div className="lg:col-span-5 rounded-3xl bg-slate-900 text-white p-7 sm:p-8 space-y-4 shadow-xl">
+                      <div className="lg:col-span-5 rounded-3xl bg-slate-950 text-white p-7 sm:p-8 space-y-5 shadow-xl border border-slate-800">
                         <div className="flex items-center justify-between border-b border-slate-800 pb-4">
                           <div className="flex items-center gap-2">
                             <Activity className="h-4 w-4 text-emerald-400" />
                             <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                              Live Reconciliation Preview
+                              Live Ledger Calculation
                             </span>
                           </div>
-                          <span className="rounded-full bg-emerald-500/20 border border-emerald-400/30 px-2.5 py-0.5 text-[10px] font-extrabold uppercase text-emerald-300">
+                          <span className="rounded-full bg-emerald-500/20 border border-emerald-400/30 px-3 py-0.5 text-[10px] font-extrabold uppercase text-emerald-300">
                             {sandboxBalanceInfo.isFullyPaid
-                              ? 'Paid'
+                              ? 'Paid in Full'
                               : sandboxBalanceInfo.isPartiallyPaid
                                 ? 'Partially Paid'
                                 : 'Issued'}
                           </span>
                         </div>
 
-                        <div className="space-y-2.5 text-xs sm:text-sm">
+                        <div className="space-y-3 text-xs sm:text-sm">
                           <div className="flex justify-between text-slate-400">
                             <span>Subtotal (Net)</span>
-                            <span className="font-bold text-white">
+                            <span className="font-mono font-bold text-white">
                               {formatMoney(sandboxTotals.subtotal, sandboxCurrency)}
                             </span>
                           </div>
                           <div className="flex justify-between text-slate-400">
                             <span>Configured Tax ({sandboxTaxRate}%)</span>
-                            <span className="font-bold text-white">
+                            <span className="font-mono font-bold text-white">
                               {formatMoney(sandboxTotals.taxTotal, sandboxCurrency)}
                             </span>
                           </div>
-                          <div className="flex justify-between border-t border-slate-800 pt-2.5 font-extrabold text-base">
+                          <div className="flex justify-between border-t border-slate-800 pt-3 font-extrabold text-base">
                             <span>Grand Total</span>
-                            <span>{formatMoney(sandboxTotals.grandTotal, sandboxCurrency)}</span>
+                            <span className="font-mono">{formatMoney(sandboxTotals.grandTotal, sandboxCurrency)}</span>
                           </div>
                           <div className="flex justify-between text-emerald-400 font-bold">
                             <span>Allocated Payment ({sandboxDepositPercent}%)</span>
-                            <span>-{formatMoney(depositPaidRaw, sandboxCurrency)}</span>
+                            <span className="font-mono">-{formatMoney(depositPaidRaw, sandboxCurrency)}</span>
                           </div>
                         </div>
 
@@ -1286,7 +1454,7 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                           <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
                             Remaining Balance Due
                           </span>
-                          <span className="text-lg sm:text-xl font-extrabold text-amber-300">
+                          <span className="text-lg sm:text-xl font-extrabold font-mono text-amber-300">
                             {formatMoney(sandboxBalanceInfo.balanceDue, sandboxCurrency)}
                           </span>
                         </div>
@@ -1298,240 +1466,213 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
             </section>
 
             {/* ---------------------------------------------------------------
-                SECTION 5: CHOOSE YOUR PLAN (100% Full Width Mint Section + Billing Switcher)
+                SECTION 6: COMPLETE 4-TIER TRANSPARENT PRICING MATRIX
                --------------------------------------------------------------- */}
-            <section className="w-full py-24 lg:py-28 bg-[#ebfaf4] dark:bg-slate-900/80 transition-colors duration-300">
+            <section className="w-full py-24 lg:py-32 bg-slate-50 dark:bg-[#090e1a] border-t border-slate-200/80 dark:border-slate-800/80 transition-colors duration-300">
               <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 space-y-14">
-                <ScrollReveal variant="fade-up" className="text-center max-w-2xl mx-auto space-y-4">
-                  <div className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
-                    <Crown className="h-4 w-4 text-amber-500 fill-amber-500" />
-                    <span>Price</span>
+                <ScrollReveal variant="fade-up" className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                  <div className="space-y-3 max-w-2xl">
+                    <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 dark:bg-emerald-950 border border-emerald-200 dark:border-emerald-800 px-3.5 py-1 text-xs font-extrabold uppercase tracking-wider text-[#0d9f6e] dark:text-emerald-400">
+                      <CreditCard className="h-3.5 w-3.5" />
+                      <span>{t('pub.pricing')}</span>
+                    </span>
+                    <h2 className="font-display text-3xl sm:text-5xl font-bold text-slate-950 dark:text-white">
+                      {language === 'sw' ? 'Mipango Wazi kwa Kila Hatua ya Biashara' : 'Transparent plans that scale with your firm.'}
+                    </h2>
+                    <p className="text-sm sm:text-base text-slate-600 dark:text-slate-400">
+                      Proposed subscription tiers in Tanzanian Shillings (TSh) backed by server-side entitlement checks.
+                    </p>
                   </div>
-                  <h2 className="font-display text-3xl sm:text-5xl font-bold text-slate-900 dark:text-white">
-                    {language === 'sw' ? 'Chagua Mpango Wako' : 'Choose Your Plan'}
-                  </h2>
-                  <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">
-                    Transparent proposed subscription tiers in Tanzanian Shillings (TSh). Also includes our Starter Plan at TSh 10,000/month.
-                  </p>
 
-                  {/* Interactive Monthly / Annual Switcher */}
-                  <div className="inline-flex items-center rounded-full bg-white dark:bg-slate-900 p-1.5 shadow-xs border border-emerald-100 dark:border-slate-800">
+                  {/* Monthly / Annual Billing Toggle */}
+                  <div className="inline-flex items-center rounded-full bg-white dark:bg-slate-900 p-1.5 shadow-xs border border-slate-200 dark:border-slate-800 self-start">
                     <button
                       type="button"
                       onClick={() => setPlanInterval('monthly')}
-                      className={`rounded-full px-5 py-2 text-xs font-extrabold transition-all duration-300 cursor-pointer ${
+                      className={`rounded-full px-5 py-2 text-xs font-extrabold transition-all duration-200 cursor-pointer ${
                         planInterval === 'monthly'
-                          ? 'bg-[#0d9f6e] text-white shadow-xs'
+                          ? 'bg-slate-950 dark:bg-[#0d9f6e] text-white'
                           : 'text-slate-600 dark:text-slate-400'
                       }`}
                     >
-                      Monthly Billing
+                      Monthly
                     </button>
                     <button
                       type="button"
                       onClick={() => setPlanInterval('annual')}
-                      className={`rounded-full px-5 py-2 text-xs font-extrabold transition-all duration-300 cursor-pointer ${
+                      className={`rounded-full px-5 py-2 text-xs font-extrabold transition-all duration-200 cursor-pointer ${
                         planInterval === 'annual'
-                          ? 'bg-[#0d9f6e] text-white shadow-xs'
+                          ? 'bg-slate-950 dark:bg-[#0d9f6e] text-white'
                           : 'text-slate-600 dark:text-slate-400'
                       }`}
                     >
-                      Annual Billing (2 Months Free)
+                      Annual (Save 16%)
                     </button>
                   </div>
                 </ScrollReveal>
 
-                <div className="grid md:grid-cols-3 gap-8 xl:gap-10 items-center max-w-7xl mx-auto">
-                  {/* Left Card: Business Plan */}
-                  <ScrollReveal variant="fade-up" delayMs={0}>
-                    <div className="premium-card-lift rounded-3xl bg-white dark:bg-slate-900 p-8 sm:p-9 shadow-md border border-emerald-100 dark:border-slate-800 text-slate-800 dark:text-slate-100 space-y-7">
-                      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-5">
-                        <div className="h-12 w-12 rounded-2xl bg-[#1e2538] text-white flex items-center justify-center font-bold">
-                          <Building2 className="h-6 w-6" />
-                        </div>
-                        <div className="text-right">
-                          <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                            Business
-                          </div>
-                          <div className="text-2xl font-extrabold text-[#0d9f6e] dark:text-emerald-400 mt-0.5">
-                            {planInterval === 'monthly' ? 'TSh 50,000' : 'TSh 500,000'}
-                            <span className="text-xs font-normal text-slate-400">
-                              /{planInterval === 'monthly' ? 'mo' : 'yr'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <ul className="space-y-3.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
-                        <li className="flex items-center gap-2.5">
-                          <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Up to 10,000 invoices / month
-                        </li>
-                        <li className="flex items-center gap-2.5">
-                          <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Up to 25 team members & roles
-                        </li>
-                        <li className="flex items-center gap-2.5">
-                          <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Projects, Time & AI Assistant
-                        </li>
-                        <li className="flex items-center gap-2.5">
-                          <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Custom branding & CSV exports
-                        </li>
-                      </ul>
-                      <Link
-                        to="/register"
-                        className="btn-shimmer block w-full text-center rounded-full bg-[#0d9f6e] py-3 text-xs sm:text-sm font-extrabold text-white hover:bg-emerald-700 transition"
-                      >
-                        Start Free 14-Day Trial
-                      </Link>
-                    </div>
-                  </ScrollReveal>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 xl:gap-8">
+                  {DEFAULT_SUBSCRIPTION_PLANS.map((plan, idx) => {
+                    const isPopular = plan.id === 'professional';
+                    const priceValue =
+                      planInterval === 'monthly' ? plan.monthlyPriceTzs : plan.annualPriceTzs;
+                    return (
+                      <ScrollReveal key={plan.id} variant="fade-up" delayMs={idx * 90}>
+                        <div
+                          className={`premium-card-lift h-full rounded-3xl border p-7 sm:p-8 flex flex-col justify-between ${
+                            isPopular
+                              ? 'bg-slate-950 text-white border-emerald-500/50 shadow-2xl relative'
+                              : 'bg-white dark:bg-slate-900 border-slate-200/90 dark:border-slate-800 text-slate-900 dark:text-white'
+                          }`}
+                        >
+                          <div className="space-y-5">
+                            <div className="flex items-center justify-between gap-2">
+                              <h3 className="text-lg font-extrabold">
+                                {language === 'sw' ? plan.nameSw : plan.nameEn}
+                              </h3>
+                              {isPopular && (
+                                <span className="rounded-full bg-[#0d9f6e] px-3 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-white">
+                                  Most Popular
+                                </span>
+                              )}
+                            </div>
 
-                  {/* Center Card: Highlighted Emerald Card (Professional Plan) */}
-                  <ScrollReveal variant="scale-up" delayMs={120}>
-                    <div className="premium-card-lift rounded-3xl bg-[#0d9f6e] p-9 sm:p-10 shadow-2xl text-white space-y-7 md:scale-105">
-                      <div className="flex items-center justify-between border-b border-white/20 pb-5">
-                        <div className="h-12 w-12 rounded-2xl bg-white/15 text-white flex items-center justify-center font-bold">
-                          <Crown className="h-6 w-6" />
-                        </div>
-                        <div className="text-right">
-                          <div className="text-xs font-bold uppercase tracking-wider text-emerald-100">
-                            Professional Plan
-                          </div>
-                          <div className="text-3xl font-extrabold text-white mt-0.5">
-                            {planInterval === 'monthly' ? 'TSh 25,000' : 'TSh 250,000'}
-                            <span className="text-xs font-normal text-emerald-100">
-                              /{planInterval === 'monthly' ? 'mo' : 'yr'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <ul className="space-y-3.5 text-xs sm:text-sm text-emerald-50">
-                        <li className="flex items-center gap-2.5">
-                          <Check className="h-4 w-4 text-white shrink-0" /> Up to 250 invoices / month
-                        </li>
-                        <li className="flex items-center gap-2.5">
-                          <Check className="h-4 w-4 text-white shrink-0" /> Up to 5 team members
-                        </li>
-                        <li className="flex items-center gap-2.5">
-                          <Check className="h-4 w-4 text-white shrink-0" /> Projects, Contracts & Time
-                        </li>
-                        <li className="flex items-center gap-2.5">
-                          <Check className="h-4 w-4 text-white shrink-0" /> Safe AI Billing Assistant
-                        </li>
-                      </ul>
-                      <Link
-                        to="/register"
-                        className="btn-shimmer block w-full text-center rounded-full bg-white py-3.5 text-xs sm:text-sm font-extrabold text-[#0d9f6e] shadow-md hover:bg-emerald-50 transition"
-                      >
-                        Start Free 14-Day Trial
-                      </Link>
-                    </div>
-                  </ScrollReveal>
+                            <div>
+                              <div className="text-3xl font-extrabold font-mono tracking-tight">
+                                {formatMoney(priceValue, 'TZS', { hideDecimalsForWholeShillings: true })}
+                              </div>
+                              <div className={`text-xs mt-1 ${isPopular ? 'text-slate-400' : 'text-slate-500'}`}>
+                                per {planInterval === 'monthly' ? 'month' : 'year'}
+                              </div>
+                            </div>
 
-                  {/* Right Card: Forever Free / Starter */}
-                  <ScrollReveal variant="fade-up" delayMs={240}>
-                    <div className="premium-card-lift rounded-3xl bg-white dark:bg-slate-900 p-8 sm:p-9 shadow-md border border-emerald-100 dark:border-slate-800 text-slate-800 dark:text-slate-100 space-y-7">
-                      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-5">
-                        <div className="h-12 w-12 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold">
-                          <Layers className="h-6 w-6" />
-                        </div>
-                        <div className="text-right">
-                          <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                            Forever Free
+                            <ul className={`space-y-3 text-xs sm:text-sm pt-4 border-t ${isPopular ? 'border-slate-800 text-slate-200' : 'border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300'}`}>
+                              <li className="flex items-center gap-2.5">
+                                <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" />
+                                <span>Up to <strong>{plan.maxInvoicesPerMonth}</strong> invoices / mo</span>
+                              </li>
+                              <li className="flex items-center gap-2.5">
+                                <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" />
+                                <span>Up to <strong>{plan.maxClients}</strong> active clients</span>
+                              </li>
+                              <li className="flex items-center gap-2.5">
+                                <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" />
+                                <span>Up to <strong>{plan.maxTeamMembers}</strong> team member(s)</span>
+                              </li>
+                              <li className="flex items-center gap-2.5">
+                                <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" />
+                                <span>{plan.allowProjectsTime ? 'Projects, Milestones & Time' : 'Quotations & Proformas'}</span>
+                              </li>
+                              <li className="flex items-center gap-2.5">
+                                <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" />
+                                <span>{plan.allowAiAssistant ? 'Safe AI Billing Assistant' : 'Bilingual EN / SW PDFs'}</span>
+                              </li>
+                            </ul>
                           </div>
-                          <div className="text-2xl font-extrabold text-[#0d9f6e] dark:text-emerald-400 mt-0.5">
-                            TSh 0<span className="text-xs font-normal text-slate-400">/mo</span>
-                          </div>
+
+                          <Link
+                            to="/register"
+                            className={`btn-shimmer mt-8 block w-full text-center rounded-full py-3.5 text-xs sm:text-sm font-extrabold transition ${
+                              isPopular
+                                ? 'bg-[#0d9f6e] text-white hover:bg-emerald-600'
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-[#0d9f6e] hover:text-white'
+                            }`}
+                          >
+                            {plan.id === 'free' ? 'Start Free' : 'Start 14-Day Trial'}
+                          </Link>
                         </div>
-                      </div>
-                      <ul className="space-y-3.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
-                        <li className="flex items-center gap-2.5">
-                          <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Up to 5 invoices / month
-                        </li>
-                        <li className="flex items-center gap-2.5">
-                          <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Up to 10 saved clients
-                        </li>
-                        <li className="flex items-center gap-2.5">
-                          <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Bilingual PDF Invoices & Quotes
-                        </li>
-                        <li className="flex items-center gap-2.5">
-                          <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Starter Plan available @ TSh 10k
-                        </li>
-                      </ul>
-                      <Link
-                        to="/register"
-                        className="block w-full text-center rounded-full bg-[#1e2538] dark:bg-slate-800 py-3 text-xs sm:text-sm font-extrabold text-white hover:bg-slate-800 dark:hover:bg-slate-700 transition"
-                      >
-                        Start For Free
-                      </Link>
-                    </div>
-                  </ScrollReveal>
+                      </ScrollReveal>
+                    );
+                  })}
                 </div>
               </div>
             </section>
 
             {/* ---------------------------------------------------------------
-                SECTION 6: WORKFLOW SPOTLIGHTS (100% Full Width White / Dark Section)
+                SECTION 7: SECTOR WORKFLOW SPOTLIGHTS & EXECUTIVE CTA BANNER
                --------------------------------------------------------------- */}
-            <section className="w-full py-24 lg:py-28 bg-white dark:bg-slate-950 transition-colors duration-300">
-              <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 space-y-14 text-center">
-                <ScrollReveal variant="fade-up" className="max-w-2xl mx-auto space-y-3">
-                  <div className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
-                    <Crown className="h-4 w-4 text-amber-500 fill-amber-500" />
-                    <span>Built For Your Sector</span>
-                  </div>
-                  <h2 className="font-display text-3xl sm:text-5xl font-bold text-slate-900 dark:text-white">
-                    {language === 'sw'
-                      ? 'Imeundwa kwa Biashara za Afrika Mashariki'
-                      : 'Tailored For Every Business Workflow'}
-                  </h2>
-                  <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">
-                    Purpose-built workflows for Tanzanian and East African service providers, agencies, and growing enterprises.
-                  </p>
-                </ScrollReveal>
-
-                <div className="grid md:grid-cols-3 gap-8 xl:gap-12 pt-4">
+            <section className="w-full py-24 lg:py-32 bg-white dark:bg-[#060911] transition-colors duration-300">
+              <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 space-y-20">
+                <div className="grid md:grid-cols-3 gap-8">
                   {[
                     {
-                      initials: 'FC',
-                      bg: 'bg-[#0d9f6e]',
+                      icon: Briefcase,
                       role: 'Freelancers & Consultants',
-                      sub: 'Advisory, IT & Legal Specialists',
-                      text: 'Issue bilingual English and Kiswahili quotations, convert approved scope into sequential invoices, and share M-Pesa Lipa Namba payment instructions.',
+                      sub: 'Advisory, Legal, Engineering & IT Specialists',
+                      text: 'Send bilingual quotations, convert approved scope in one click, and share expiring client portal links with M-Pesa Lipa Namba instructions.',
                     },
                     {
-                      initials: 'DA',
-                      bg: 'bg-[#1e2538]',
+                      icon: Users,
                       role: 'Agencies & Studios',
-                      sub: 'Creative, Digital & Engineering Teams',
-                      text: 'Track project budgets, approve billable staff hours, and separate Sales and Accountant permissions with database-level Row Level Security.',
+                      sub: 'Digital, Creative & Professional Services Teams',
+                      text: 'Manage multi-milestone retainers, approve staff billable hours, and enforce role-based access for Owners, Accountants, and Sales staff.',
                     },
                     {
-                      initials: 'CL',
-                      bg: 'bg-amber-500',
-                      role: 'Contractors & Suppliers',
-                      sub: 'Logistics, Construction & B2B Trade',
-                      text: 'Generate Proforma Invoices for procurement, record mobilization deposits and partial payments, and reconcile credit notes with a complete audit trail.',
+                      icon: Building2,
+                      role: 'Contractors & B2B Suppliers',
+                      sub: 'Logistics, Construction & Commercial Trade',
+                      text: 'Generate Proforma Invoices for procurement, allocate mobilization deposits and partial settlements, and issue linked Credit Notes.',
                     },
-                  ].map((spot, idx) => (
-                    <ScrollReveal key={idx} variant="fade-up" delayMs={idx * 130}>
-                      <div className="group premium-card-lift h-full rounded-3xl border border-slate-100 dark:border-slate-800/80 bg-slate-50/40 dark:bg-slate-900/50 p-8 space-y-4">
-                        <div
-                          className={`mx-auto h-16 w-16 rounded-full ${spot.bg} text-white font-display text-lg font-bold flex items-center justify-center shadow-md border-4 border-emerald-50 dark:border-slate-800 transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-1`}
-                        >
-                          {spot.initials}
+                  ].map((sector, idx) => (
+                    <ScrollReveal key={idx} variant="fade-up" delayMs={idx * 110}>
+                      <div className="premium-card-lift h-full rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 p-8 space-y-4">
+                        <div className="h-12 w-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950 text-[#0d9f6e] dark:text-emerald-400 flex items-center justify-center">
+                          <sector.icon className="h-6 w-6" />
                         </div>
                         <div>
-                          <h3 className="text-base font-extrabold text-slate-900 dark:text-white">{spot.role}</h3>
+                          <h3 className="text-lg font-extrabold text-slate-950 dark:text-white">{sector.role}</h3>
                           <div className="text-xs font-bold text-[#0d9f6e] dark:text-emerald-400 mt-0.5">
-                            {spot.sub}
+                            {sector.sub}
                           </div>
                         </div>
                         <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                          {spot.text}
+                          {sector.text}
                         </p>
                       </div>
                     </ScrollReveal>
                   ))}
                 </div>
+
+                {/* High-Contrast Executive CTA Banner */}
+                <ScrollReveal variant="scale-up">
+                  <div className="rounded-3xl bg-slate-950 text-white p-10 sm:p-14 lg:p-16 border border-slate-800 relative overflow-hidden">
+                    <div
+                      aria-hidden="true"
+                      className="pointer-events-none absolute -right-24 -bottom-24 h-80 w-80 rounded-full bg-[#0d9f6e]/25 blur-3xl"
+                    />
+                    <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                      <div className="space-y-3 max-w-2xl">
+                        <span className="text-xs font-mono uppercase tracking-widest text-emerald-400 font-bold">
+                          READY FOR PRODUCTION BILLING
+                        </span>
+                        <h2 className="font-display text-3xl sm:text-5xl font-bold text-white leading-tight">
+                          {language === 'sw'
+                            ? 'Anza Kusimamia Ankara na Mapato ya Biashara Yako Leo.'
+                            : 'Upgrade your billing workflow from spreadsheets to verifiable ledgers.'}
+                        </h2>
+                        <p className="text-sm sm:text-base text-slate-300">
+                          Create your business workspace in under two minutes or explore the pre-configured demo accounts.
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-4 shrink-0">
+                        <Link
+                          to={currentUser ? '/app' : '/register'}
+                          className="btn-shimmer inline-flex items-center gap-2 rounded-full bg-[#0d9f6e] px-8 py-4 text-sm font-extrabold text-white shadow-lg hover:bg-emerald-600 transition"
+                        >
+                          <span>{language === 'sw' ? 'Jisajili Bure Sasa' : 'Create Free Workspace'}</span>
+                          <ArrowRight className="h-4 w-4" />
+                        </Link>
+                        <Link
+                          to="/login"
+                          className="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900 px-7 py-4 text-sm font-bold text-white hover:bg-slate-800 transition"
+                        >
+                          <span>{language === 'sw' ? 'Ingia Kwenye Mfumo' : 'Sign In / Demo'}</span>
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </ScrollReveal>
               </div>
             </section>
           </div>
@@ -1587,7 +1728,7 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
               ].map((block, i) => (
                 <div
                   key={i}
-                  className="premium-card-lift rounded-3xl border border-emerald-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 shadow-xs"
+                  className="premium-card-lift rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 shadow-xs"
                 >
                   <h2 className="text-xl font-extrabold text-slate-900 dark:text-white mb-4">{block.title}</h2>
                   <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
@@ -1619,10 +1760,11 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
               {DEFAULT_SUBSCRIPTION_PLANS.map((plan) => (
                 <div
                   key={plan.id}
-                  className={`premium-card-lift rounded-3xl border p-8 flex flex-col justify-between ${plan.id === 'professional'
-                      ? 'bg-[#0d9f6e] text-white border-[#0d9f6e] shadow-xl'
-                      : 'bg-white border-emerald-100 dark:bg-slate-900 dark:border-slate-800'
-                    }`}
+                  className={`premium-card-lift rounded-3xl border p-8 flex flex-col justify-between ${
+                    plan.id === 'professional'
+                      ? 'bg-slate-950 text-white border-emerald-500/50 shadow-xl'
+                      : 'bg-white border-slate-200 dark:bg-slate-900 dark:border-slate-800'
+                  }`}
                 >
                   <div>
                     <div className="flex items-center justify-between">
@@ -1630,13 +1772,13 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                         {language === 'sw' ? plan.nameSw : plan.nameEn}
                       </h2>
                       {plan.id === 'professional' && (
-                        <span className="rounded-full bg-white/20 px-2.5 py-0.5 text-xs font-bold text-white">
+                        <span className="rounded-full bg-[#0d9f6e] px-2.5 py-0.5 text-xs font-bold text-white">
                           Popular
                         </span>
                       )}
                     </div>
                     <div className="mt-5">
-                      <span className="text-3xl font-extrabold">
+                      <span className="text-3xl font-extrabold font-mono">
                         {formatMoney(plan.monthlyPriceTzs, 'TZS', { hideDecimalsForWholeShillings: true })}
                       </span>
                       <span className="text-xs opacity-75"> / month</span>
@@ -1647,23 +1789,23 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
 
                     <ul className="mt-6 space-y-3 text-sm">
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 shrink-0" />
+                        <CheckCircle2 className="h-4 w-4 text-[#0d9f6e] shrink-0" />
                         Up to {plan.maxInvoicesPerMonth} invoices / month
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 shrink-0" />
+                        <CheckCircle2 className="h-4 w-4 text-[#0d9f6e] shrink-0" />
                         Up to {plan.maxClients} active clients
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 shrink-0" />
+                        <CheckCircle2 className="h-4 w-4 text-[#0d9f6e] shrink-0" />
                         Up to {plan.maxTeamMembers} team member(s)
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 shrink-0" />
+                        <CheckCircle2 className="h-4 w-4 text-[#0d9f6e] shrink-0" />
                         {plan.allowProjectsTime ? 'Projects & Billable Time included' : 'Core Invoicing & Quotations'}
                       </li>
                       <li className="flex items-center gap-2">
-                        <CheckCircle2 className="h-4 w-4 shrink-0" />
+                        <CheckCircle2 className="h-4 w-4 text-[#0d9f6e] shrink-0" />
                         {plan.allowAiAssistant ? 'AI Billing Assistant enabled' : 'Standard manual templates'}
                       </li>
                     </ul>
@@ -1671,10 +1813,11 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
 
                   <Link
                     to="/register"
-                    className={`btn-shimmer mt-8 block text-center rounded-full px-4 py-3 text-sm font-extrabold transition ${plan.id === 'professional'
-                        ? 'bg-white text-[#0d9f6e] hover:bg-emerald-50'
-                        : 'bg-[#0d9f6e] text-white hover:bg-emerald-700'
-                      }`}
+                    className={`btn-shimmer mt-8 block text-center rounded-full px-4 py-3 text-sm font-extrabold transition ${
+                      plan.id === 'professional'
+                        ? 'bg-[#0d9f6e] text-white hover:bg-emerald-600'
+                        : 'bg-slate-900 dark:bg-slate-800 text-white hover:bg-[#0d9f6e]'
+                    }`}
                   >
                     {plan.id === 'free' ? 'Start Free' : 'Start 14-Day Trial'}
                   </Link>
@@ -1706,7 +1849,7 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
               ].map((u, idx) => (
                 <div
                   key={idx}
-                  className="premium-card-lift rounded-3xl border border-emerald-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-8"
+                  className="premium-card-lift rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8"
                 >
                   <Building2 className="h-7 w-7 text-[#0d9f6e] mb-4" />
                   <h2 className="text-xl font-extrabold">{u.role}</h2>
@@ -1719,15 +1862,15 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
 
         {page === 'help' && (
           <section className="py-16 w-full px-6 sm:px-10 lg:px-16 xl:px-24 space-y-6 animate-fade-up">
-            <h1 className="font-display text-3xl sm:text-5xl font-extrabold">Help Centre & Operational Guides</h1>
+            <h1 className="font-display text-3xl sm:text-5xl font-extrabold">Help Centre &amp; Operational Guides</h1>
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="rounded-3xl border border-emerald-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-8">
+              <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8">
                 <h2 className="text-lg font-extrabold">Important Notice on TRA EFD / VFD Fiscal Receipts</h2>
                 <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                   Ordinary commercial invoices and payment receipts generated in InvoicePro are commercial billing records and are <strong>not automatically TRA EFD/VFD fiscal receipts</strong>. Fiscal-document issuance requires a separate, verified TRA VFD integration module.
                 </p>
               </div>
-              <div className="rounded-3xl border border-emerald-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-8">
+              <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8">
                 <h2 className="text-lg font-extrabold">How Issued Invoice Immutability Works</h2>
                 <p className="mt-2 text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                   Once an invoice is marked as <code>Issued</code>, its totals, client, and line items are locked to preserve your audit trail. If you need to reduce the balance due, issue a linked <strong>Credit Note</strong>.
@@ -1757,7 +1900,7 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
               ].map((item, i) => (
                 <div
                   key={i}
-                  className="premium-card-lift rounded-3xl border border-emerald-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-7"
+                  className="premium-card-lift rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-7"
                 >
                   <h2 className="font-extrabold text-base flex items-start gap-2">
                     <HelpCircle className="h-5 w-5 text-[#0d9f6e] shrink-0 mt-0.5" />
@@ -1789,7 +1932,7 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                   e.preventDefault();
                   setContactSubmitted(true);
                 }}
-                className="rounded-3xl border border-emerald-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 space-y-5"
+                className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 space-y-5"
               >
                 <div>
                   <label className="block text-xs font-bold uppercase text-slate-600 dark:text-slate-300 mb-1.5">
@@ -1841,7 +1984,7 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
         {page === 'privacy' && (
           <section className="py-16 w-full px-6 sm:px-10 lg:px-16 xl:px-24 space-y-6 animate-fade-up">
             <h1 className="font-display text-3xl sm:text-5xl font-extrabold">{t('pub.privacy')}</h1>
-            <div className="rounded-3xl border border-emerald-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 space-y-4 text-sm text-slate-600 dark:text-slate-300 max-w-4xl">
+            <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 space-y-4 text-sm text-slate-600 dark:text-slate-300 max-w-4xl">
               <p>
                 <strong>1. Multi-Tenant Isolation:</strong> Every business record in InvoicePro is scoped to its <code>business_id</code> and protected by PostgreSQL Row Level Security (RLS).
               </p>
@@ -1858,7 +2001,7 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
         {page === 'terms' && (
           <section className="py-16 w-full px-6 sm:px-10 lg:px-16 xl:px-24 space-y-6 animate-fade-up">
             <h1 className="font-display text-3xl sm:text-5xl font-extrabold">{t('pub.terms')}</h1>
-            <div className="rounded-3xl border border-emerald-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 space-y-4 text-sm text-slate-600 dark:text-slate-300 max-w-4xl">
+            <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 space-y-4 text-sm text-slate-600 dark:text-slate-300 max-w-4xl">
               <p>
                 <strong>1. Commercial Documents vs. Fiscal Receipts:</strong> Documents generated by InvoicePro are commercial invoices, quotations, proformas, and payment receipts. They are not substitutes for statutory TRA EFD/VFD fiscal receipts unless an authorized fiscal integration is explicitly enabled and verified.
               </p>
@@ -1870,16 +2013,18 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
         )}
       </main>
 
-      {/* 100% Full-Width Footer */}
-      <footer className="w-full border-t border-emerald-100 dark:border-slate-800 bg-[#f8fdfb] dark:bg-slate-950 py-12 text-xs text-slate-500 dark:text-slate-400 transition-colors duration-300">
+      {/* 100% Full-Width Architectural Footer */}
+      <footer className="w-full border-t border-slate-200/80 dark:border-slate-800 bg-slate-50 dark:bg-[#050811] py-14 text-xs text-slate-500 dark:text-slate-400 transition-colors duration-300">
         <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2.5">
-            <ShieldCheck className="h-4 w-4 text-[#0d9f6e]" />
-            <span className="font-medium">
+          <div className="flex items-center gap-3">
+            <span className="h-8 w-8 rounded-lg bg-[#0d9f6e] text-white flex items-center justify-center">
+              <ShieldCheck className="h-4 w-4" />
+            </span>
+            <span className="font-semibold text-slate-700 dark:text-slate-300">
               © {new Date().getFullYear()} InvoicePro Tanzania. Built for East African Businesses.
             </span>
           </div>
-          <div className="flex flex-wrap gap-6 font-medium">
+          <div className="flex flex-wrap gap-6 font-semibold">
             <Link to="/features" className="hover:text-[#0d9f6e] transition">{t('pub.features')}</Link>
             <Link to="/pricing" className="hover:text-[#0d9f6e] transition">{t('pub.pricing')}</Link>
             <Link to="/use-cases" className="hover:text-[#0d9f6e] transition">{t('pub.useCases')}</Link>
