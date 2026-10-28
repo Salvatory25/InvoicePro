@@ -41,10 +41,9 @@ import {
   formatMoney,
 } from '../lib/money';
 import {
-  AnimatedInvoiceStatusDonut,
-  HeroPaymentStreamMotionGraphic,
+  AnimatedCounter,
   Interactive3DTiltCard,
-  LiveBillingMotionTheater,
+  ScrollReveal,
 } from '../components/MotionGraphics';
 
 export type PublicPageType =
@@ -145,6 +144,7 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
   const [contactForm, setContactForm] = useState({ name: '', email: '', company: '', message: '' });
   const [activeAccordion, setActiveAccordion] = useState<number>(0);
   const [selectedHeroPayment, setSelectedHeroPayment] = useState<string>('mpesa');
+  const [activeDonutMetric, setActiveDonutMetric] = useState<'collected' | 'outstanding' | 'overdue'>('collected');
   const [planInterval, setPlanInterval] = useState<'monthly' | 'annual'>('monthly');
 
   // Interactive Live Decimal-Safe Sandbox Calculator State
@@ -441,7 +441,9 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                           <div className="h-2 w-4/5 rounded-full bg-slate-100 dark:bg-slate-800" />
                           <div className="pt-1.5 flex justify-between font-extrabold text-slate-900 dark:text-white">
                             <span>Total</span>
-                            <span className="text-[#0d9f6e] dark:text-emerald-400">4,720,000</span>
+                            <span className="text-[#0d9f6e] dark:text-emerald-400">
+                              <AnimatedCounter value={4720000} />
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -449,7 +451,7 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                       {/* Stat & Overlapping Role Badges */}
                       <div className="space-y-2.5">
                         <div className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
-                          7+ Currencies
+                          <AnimatedCounter value={7} suffix="+ Currencies" />
                         </div>
                         <div className="text-xs sm:text-sm font-medium text-emerald-100">
                           {language === 'sw'
@@ -466,7 +468,7 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                             <span
                               key={i}
                               title={av.label}
-                              className={`h-10 w-10 rounded-full ${av.bg} border-2 border-white text-xs font-extrabold text-white flex items-center justify-center shadow-md transition-transform duration-200 hover:-translate-y-1`}
+                              className={`h-10 w-10 rounded-full ${av.bg} border-2 border-white text-xs font-extrabold text-white flex items-center justify-center shadow-md transition-transform duration-300 hover:-translate-y-1.5 hover:scale-110`}
                             >
                               {av.initials}
                             </span>
@@ -477,7 +479,7 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                   </div>
 
                   {/* Right Column: Stacked 3D Interactive Client & Payment Card */}
-                  <div className="lg:col-span-6 relative animate-fade-up-delay-2">
+                  <div className="lg:col-span-6 relative group/hero animate-fade-up-delay-2">
                     {/* Floating Live Receipt Notification Badge */}
                     <div className="hidden sm:flex items-center gap-3 absolute -top-6 right-6 z-20 rounded-2xl bg-slate-900/95 text-white px-4 py-2.5 shadow-xl border border-emerald-400/30 animate-float-badge">
                       <span className="relative flex h-2.5 w-2.5">
@@ -490,11 +492,11 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                       </div>
                     </div>
 
-                    {/* Decorative 3D Angled Background Cards on Right */}
-                    <div className="hidden sm:block absolute -right-5 top-8 bottom-0 w-full rounded-t-3xl bg-white/15 rotate-3 pointer-events-none" />
-                    <div className="hidden sm:block absolute -right-2.5 top-4 bottom-0 w-full rounded-t-3xl bg-white/30 rotate-1.5 pointer-events-none" />
+                    {/* Decorative 3D Angled Background Cards on Right (Smoothly fan out on hover) */}
+                    <div className="hidden sm:block absolute -right-5 top-8 bottom-0 w-full rounded-t-3xl bg-white/15 rotate-3 transition-transform duration-500 ease-out group-hover/hero:rotate-5 group-hover/hero:translate-x-2 pointer-events-none" />
+                    <div className="hidden sm:block absolute -right-2.5 top-4 bottom-0 w-full rounded-t-3xl bg-white/30 rotate-1.5 transition-transform duration-500 ease-out group-hover/hero:rotate-3 group-hover/hero:translate-x-1 pointer-events-none" />
 
-                    {/* Main Foreground Card with 3D Mouse-Parallax Tilt & Live SVG Payment Stream Motion Graphic */}
+                    {/* Main Foreground Card with Pro 3D Perspective Hover */}
                     <Interactive3DTiltCard className="rounded-t-3xl bg-white dark:bg-slate-900 p-7 sm:p-9 text-slate-800 dark:text-slate-100 shadow-2xl border border-emerald-100 dark:border-slate-800 transition-colors duration-300">
                       <div className="flex items-center justify-between mb-6">
                         <div>
@@ -512,20 +514,20 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                       </div>
 
                       {/* Outstanding Invoices & Available Credits Box */}
-                      <div className="rounded-2xl border border-emerald-100 dark:border-slate-800 bg-[#f8fdfb] dark:bg-slate-800/60 p-6 flex flex-wrap items-center justify-between gap-4 mb-5">
+                      <div className="rounded-2xl border border-emerald-100 dark:border-slate-800 bg-[#f8fdfb] dark:bg-slate-800/60 p-6 flex flex-wrap items-center justify-between gap-4 mb-6 transition-all duration-300 hover:border-emerald-300/80">
                         <div>
                           <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                             {language === 'sw' ? 'Salio la Ankara Zinazodaiwa' : 'Outstanding Invoices'}
                           </div>
                           <div className="mt-1.5 text-2xl sm:text-3xl font-extrabold text-[#0d9f6e] dark:text-emerald-400 tracking-tight">
-                            TSh 2,720,000.00
+                            <AnimatedCounter value={2720000} prefix="TSh " decimals={2} />
                           </div>
                           <Link
                             to={currentUser ? '/app/payments' : '/login'}
-                            className="btn-shimmer mt-3.5 inline-flex items-center gap-1.5 rounded-full bg-[#0d9f6e] px-6 py-2 text-xs font-extrabold text-white shadow-sm hover:bg-emerald-700 hover:scale-[1.02] transition-all duration-200"
+                            className="group/btn btn-shimmer mt-3.5 inline-flex items-center gap-1.5 rounded-full bg-[#0d9f6e] px-6 py-2 text-xs font-extrabold text-white shadow-sm hover:bg-emerald-700 hover:scale-[1.03] transition-all duration-300"
                           >
                             <span>{language === 'sw' ? 'Rekodi Malipo' : 'Pay Now'}</span>
-                            <ArrowRight className="h-3.5 w-3.5" />
+                            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/btn:translate-x-1" />
                           </Link>
                         </div>
 
@@ -536,22 +538,17 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                           <div className="mt-1.5 text-2xl sm:text-3xl font-extrabold text-[#0d9f6e] dark:text-emerald-400 tracking-tight">
                             TSh 0.00
                           </div>
-                          <div className="mt-3.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                          <div className="mt-3.5 text-xs font-medium text-slate-500 dark:text-slate-400 transition-all duration-300">
                             {activePaymentMode.channel}
                           </div>
                         </div>
-                      </div>
-
-                      {/* Animated SVG Payment Settlement Motion Stream */}
-                      <div className="mb-5">
-                        <HeroPaymentStreamMotionGraphic isSw={language === 'sw'} />
                       </div>
 
                       {/* Interactive Payment Modes Row */}
                       <div className="space-y-3.5">
                         <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
                           <span>{language === 'sw' ? 'Njia za Malipo Zinazokubaliwa' : 'Payment Modes'}</span>
-                          <span className="text-[11px] font-semibold text-[#0d9f6e] dark:text-emerald-400">
+                          <span className="text-[11px] font-semibold text-[#0d9f6e] dark:text-emerald-400 transition-all duration-300">
                             {activePaymentMode.name} Selected
                           </span>
                         </div>
@@ -563,10 +560,11 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                                 key={pm.id}
                                 type="button"
                                 onClick={() => setSelectedHeroPayment(pm.id)}
-                                className={`rounded-xl border py-2.5 px-2 text-xs flex items-center justify-center transition-all duration-200 cursor-pointer ${isSelected
-                                    ? 'border-[#0d9f6e] bg-emerald-50/70 dark:bg-emerald-950/60 shadow-xs scale-[1.04]'
-                                    : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800/80 hover:border-emerald-200'
-                                  }`}
+                                className={`rounded-xl border py-2.5 px-2 text-xs flex items-center justify-center transition-all duration-300 cursor-pointer ${
+                                  isSelected
+                                    ? 'border-[#0d9f6e] bg-emerald-50/80 dark:bg-emerald-950/60 shadow-sm -translate-y-0.5 scale-[1.04]'
+                                    : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-800/80 hover:border-emerald-200 hover:-translate-y-0.5'
+                                }`}
                               >
                                 <span className={pm.tone}>{pm.name}</span>
                               </button>
@@ -587,9 +585,9 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                               key={idx}
                               to={currentUser ? '/app' : '/login'}
                               title={tile.label}
-                              className="group rounded-xl bg-[#e6f8f1] dark:bg-emerald-950/50 hover:bg-[#0d9f6e] dark:hover:bg-[#0d9f6e] text-[#0d9f6e] dark:text-emerald-400 hover:text-white py-3.5 flex flex-col items-center justify-center gap-1 transition-all duration-200"
+                              className="group rounded-xl bg-[#e6f8f1] dark:bg-emerald-950/50 hover:bg-[#0d9f6e] dark:hover:bg-[#0d9f6e] text-[#0d9f6e] dark:text-emerald-400 hover:text-white py-3.5 flex flex-col items-center justify-center gap-1 transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
                             >
-                              <tile.icon className="h-4 w-4 transition-transform duration-200 group-hover:scale-110" />
+                              <tile.icon className="h-4 w-4 transition-transform duration-300 group-hover:scale-115" />
                             </Link>
                           ))}
                         </div>
@@ -619,8 +617,8 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                --------------------------------------------------------------- */}
             <section className="w-full py-24 lg:py-28 bg-white dark:bg-slate-950 transition-colors duration-300">
               <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 grid lg:grid-cols-12 gap-14 xl:gap-20 items-start">
-                {/* Left Column */}
-                <div className="lg:col-span-5 space-y-5">
+                {/* Left Column with Scroll-Triggered Reveal */}
+                <ScrollReveal variant="fade-right" className="lg:col-span-5 space-y-5">
                   <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 dark:bg-amber-950/50 border border-amber-200/70 dark:border-amber-800/60 px-3.5 py-1 text-xs font-bold text-slate-800 dark:text-amber-300">
                     <Crown className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
                     <span>{t('pub.features')}</span>
@@ -638,15 +636,15 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                   <div className="pt-3">
                     <Link
                       to="/features"
-                      className="btn-shimmer inline-flex items-center gap-2 rounded-full bg-[#0d9f6e] px-7 py-3.5 text-xs sm:text-sm font-extrabold text-white shadow-md hover:bg-emerald-700 hover:scale-[1.02] transition-all duration-200"
+                      className="group btn-shimmer inline-flex items-center gap-2 rounded-full bg-[#0d9f6e] px-7 py-3.5 text-xs sm:text-sm font-extrabold text-white shadow-md hover:bg-emerald-700 hover:scale-[1.03] transition-all duration-300"
                     >
                       <span>{language === 'sw' ? 'Tazama Huduma Zote' : 'View All Features'}</span>
-                      <ArrowRight className="h-4 w-4" />
+                      <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                     </Link>
                   </div>
-                </div>
+                </ScrollReveal>
 
-                {/* Right 2x2 Feature Grid */}
+                {/* Right 2x2 Feature Grid with Staggered Scroll Reveals & Icon Micro-Animations */}
                 <div className="lg:col-span-7 grid sm:grid-cols-2 gap-8 xl:gap-10">
                   {[
                     {
@@ -682,27 +680,21 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                           : 'Built for Tanzania, Kenya, Uganda, and Rwanda with configurable VAT rates and strict currency-grouped reporting.',
                     },
                   ].map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="premium-card-lift rounded-3xl border border-slate-100 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-900/60 p-7 space-y-3.5"
-                    >
-                      <div className="h-12 w-12 rounded-2xl bg-[#e6f8f1] dark:bg-emerald-950/70 text-[#0d9f6e] dark:text-emerald-400 flex items-center justify-center">
-                        <item.icon className="h-6 w-6" />
+                    <ScrollReveal key={idx} variant="fade-up" delayMs={idx * 110}>
+                      <div className="group premium-card-lift h-full rounded-3xl border border-slate-100 dark:border-slate-800/80 bg-slate-50/60 dark:bg-slate-900/60 p-7 space-y-3.5">
+                        <div className="h-12 w-12 rounded-2xl bg-[#e6f8f1] dark:bg-emerald-950/70 text-[#0d9f6e] dark:text-emerald-400 group-hover:bg-[#0d9f6e] group-hover:text-white flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6 shadow-xs">
+                          <item.icon className="h-6 w-6" />
+                        </div>
+                        <h3 className="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight group-hover:text-[#0d9f6e] dark:group-hover:text-emerald-400 transition-colors">
+                          {item.title}
+                        </h3>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                          {item.desc}
+                        </p>
                       </div>
-                      <h3 className="text-lg font-extrabold text-slate-900 dark:text-white tracking-tight">
-                        {item.title}
-                      </h3>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                        {item.desc}
-                      </p>
-                    </div>
+                    </ScrollReveal>
                   ))}
                 </div>
-              </div>
-
-              {/* Full-Width Interactive 4-Stage SVG Motion Graphics Theater */}
-              <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 mt-16 lg:mt-20">
-                <LiveBillingMotionTheater isSw={language === 'sw'} />
               </div>
             </section>
 
@@ -713,89 +705,103 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
               <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 space-y-28">
                 {/* Part A: Bento Cards on Left + "Invoicing Solution For All" on Right */}
                 <div className="grid lg:grid-cols-12 gap-14 xl:gap-20 items-center">
-                  {/* Left 2x2 Bento Mosaic */}
+                  {/* Left 2x2 Bento Mosaic with Staggered Scale-Up Reveals */}
                   <div className="lg:col-span-6 grid sm:grid-cols-2 gap-5">
                     {/* Card 1: Dark Navy Template Card */}
-                    <div className="premium-card-lift rounded-3xl bg-[#1e2538] p-7 text-white space-y-4 shadow-lg">
-                      <span className="inline-block rounded-md bg-amber-400 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-950">
-                        New
-                      </span>
-                      <div className="text-base sm:text-lg font-extrabold leading-snug">
-                        {language === 'sw'
-                          ? 'Nyaraka za Kiswahili na Kiingereza'
-                          : "We've Added Bilingual Templates"}
+                    <ScrollReveal variant="scale-up" delayMs={0}>
+                      <div className="premium-card-lift h-full rounded-3xl bg-[#1e2538] p-7 text-white space-y-4 shadow-lg">
+                        <span className="inline-block rounded-md bg-amber-400 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-950">
+                          New
+                        </span>
+                        <div className="text-base sm:text-lg font-extrabold leading-snug">
+                          {language === 'sw'
+                            ? 'Nyaraka za Kiswahili na Kiingereza'
+                            : "We've Added Bilingual Templates"}
+                        </div>
+                        <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                          {language === 'sw'
+                            ? 'Chapisha au pakua PDF za ankara na risiti kwa lugha anayoipenda mteja wako.'
+                            : 'Generate branded commercial invoices, quotations, and receipts in English or Kiswahili.'}
+                        </p>
+                        <Link
+                          to={currentUser ? '/app/invoices' : '/register'}
+                          className="group inline-flex items-center gap-1.5 rounded-full bg-white px-5 py-2 text-xs font-extrabold text-slate-900 hover:bg-emerald-50 transition-all duration-300 hover:scale-105"
+                        >
+                          <span>{language === 'sw' ? 'Fungua Sasa' : 'Download Now'}</span>
+                          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
+                        </Link>
                       </div>
-                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                        {language === 'sw'
-                          ? 'Chapisha au pakua PDF za ankara na risiti kwa lugha anayoipenda mteja wako.'
-                          : 'Generate branded commercial invoices, quotations, and receipts in English or Kiswahili.'}
-                      </p>
-                      <Link
-                        to={currentUser ? '/app/invoices' : '/register'}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-white px-5 py-2 text-xs font-extrabold text-slate-900 hover:bg-emerald-50 transition"
-                      >
-                        <span>{language === 'sw' ? 'Fungua Sasa' : 'Download Now'}</span>
-                        <ArrowRight className="h-3.5 w-3.5" />
-                      </Link>
-                    </div>
+                    </ScrollReveal>
 
                     {/* Right Column of Bento Stack */}
                     <div className="space-y-5">
                       {/* Card 2: White Quotation Card */}
-                      <div className="premium-card-lift rounded-3xl bg-white dark:bg-slate-900 p-5 shadow-sm border border-emerald-100 dark:border-slate-800 flex items-start gap-3.5 text-slate-800 dark:text-slate-100">
-                        <div className="h-11 w-11 rounded-full bg-[#0d9f6e] text-white flex items-center justify-center shrink-0">
-                          <FileCheck2 className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <div className="text-sm font-extrabold">Quotations & Proformas</div>
-                          <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                            Effortlessly track revisions and convert accepted estimates.
+                      <ScrollReveal variant="fade-up" delayMs={100}>
+                        <div className="premium-card-lift rounded-3xl bg-white dark:bg-slate-900 p-5 shadow-sm border border-emerald-100 dark:border-slate-800 flex items-start gap-3.5 text-slate-800 dark:text-slate-100">
+                          <div className="h-11 w-11 rounded-full bg-[#0d9f6e] text-white flex items-center justify-center shrink-0">
+                            <FileCheck2 className="h-5 w-5" />
+                          </div>
+                          <div>
+                            <div className="text-sm font-extrabold">Quotations & Proformas</div>
+                            <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                              Effortlessly track revisions and convert accepted estimates.
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      </ScrollReveal>
 
                       {/* Card 3: Emerald 18% Configurable VAT Pill */}
-                      <div className="premium-card-lift rounded-3xl bg-[#0d9f6e] p-5 text-white shadow-md flex items-center gap-4">
-                        <span className="text-3xl font-extrabold tracking-tight">18%</span>
-                        <span className="text-xs text-emerald-50 leading-snug font-medium">
-                          Configurable VAT & Tax Rates per Country & Item
-                        </span>
-                      </div>
+                      <ScrollReveal variant="fade-up" delayMs={180}>
+                        <div className="premium-card-lift rounded-3xl bg-[#0d9f6e] p-5 text-white shadow-md flex items-center gap-4">
+                          <span className="text-3xl font-extrabold tracking-tight">
+                            <AnimatedCounter value={18} suffix="%" />
+                          </span>
+                          <span className="text-xs text-emerald-50 leading-snug font-medium">
+                            Configurable VAT & Tax Rates per Country & Item
+                          </span>
+                        </div>
+                      </ScrollReveal>
 
                       {/* Card 4: Verified Client Pill */}
-                      <div className="premium-card-lift rounded-3xl bg-white dark:bg-slate-900 p-4 shadow-sm border border-emerald-100 dark:border-slate-800 flex items-center justify-between text-slate-800 dark:text-slate-100">
-                        <div className="flex items-center gap-3">
-                          <span className="h-10 w-10 rounded-full bg-slate-900 text-teal-400 font-extrabold text-xs flex items-center justify-center">
-                            SL
-                          </span>
-                          <div>
-                            <div className="text-xs sm:text-sm font-extrabold">Serengeti Logistics</div>
-                            <span className="inline-block rounded bg-amber-100 dark:bg-amber-950/80 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300">
-                              Verified Client
+                      <ScrollReveal variant="fade-up" delayMs={260}>
+                        <div className="premium-card-lift rounded-3xl bg-white dark:bg-slate-900 p-4 shadow-sm border border-emerald-100 dark:border-slate-800 flex items-center justify-between text-slate-800 dark:text-slate-100">
+                          <div className="flex items-center gap-3">
+                            <span className="h-10 w-10 rounded-full bg-slate-900 text-teal-400 font-extrabold text-xs flex items-center justify-center">
+                              SL
                             </span>
+                            <div>
+                              <div className="text-xs sm:text-sm font-extrabold">Serengeti Logistics</div>
+                              <span className="inline-block rounded bg-amber-100 dark:bg-amber-950/80 px-2 py-0.5 text-[10px] font-bold text-amber-800 dark:text-amber-300">
+                                Verified Client
+                              </span>
+                            </div>
                           </div>
+                          <CheckCircle2 className="h-5 w-5 text-[#0d9f6e]" />
                         </div>
-                        <CheckCircle2 className="h-5 w-5 text-[#0d9f6e]" />
-                      </div>
+                      </ScrollReveal>
                     </div>
 
                     {/* Bottom-Left Total Revenue Mini Card */}
-                    <div className="sm:col-span-1 premium-card-lift rounded-3xl bg-white dark:bg-slate-900 p-5 shadow-sm border border-emerald-100 dark:border-slate-800 flex items-center justify-between text-slate-800 dark:text-slate-100">
-                      <div>
-                        <div className="h-8 w-8 rounded-xl bg-[#e6f8f1] dark:bg-emerald-950 text-[#0d9f6e] flex items-center justify-center mb-2">
-                          <Briefcase className="h-4 w-4" />
+                    <ScrollReveal variant="fade-up" delayMs={220} className="sm:col-span-1">
+                      <div className="premium-card-lift rounded-3xl bg-white dark:bg-slate-900 p-5 shadow-sm border border-emerald-100 dark:border-slate-800 flex items-center justify-between text-slate-800 dark:text-slate-100">
+                        <div>
+                          <div className="h-8 w-8 rounded-xl bg-[#e6f8f1] dark:bg-emerald-950 text-[#0d9f6e] flex items-center justify-center mb-2">
+                            <Briefcase className="h-4 w-4" />
+                          </div>
+                          <div className="text-lg font-extrabold text-slate-900 dark:text-white">
+                            <AnimatedCounter value={4720000} prefix="TSh " />
+                          </div>
+                          <div className="text-xs text-slate-500 dark:text-slate-400">Sample Issued Invoice</div>
                         </div>
-                        <div className="text-lg font-extrabold text-slate-900 dark:text-white">TSh 4,720,000</div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400">Sample Issued Invoice</div>
+                        <span className="text-[11px] font-extrabold text-[#0d9f6e] bg-emerald-50 dark:bg-emerald-950/80 px-2.5 py-1 rounded-lg">
+                          100% Exact
+                        </span>
                       </div>
-                      <span className="text-[11px] font-extrabold text-[#0d9f6e] bg-emerald-50 dark:bg-emerald-950/80 px-2.5 py-1 rounded-lg">
-                        100% Exact
-                      </span>
-                    </div>
+                    </ScrollReveal>
                   </div>
 
-                  {/* Right Content: Invoicing Solution For All */}
-                  <div className="lg:col-span-6 space-y-5">
+                  {/* Right Content: Invoicing Solution For All with Smooth Animated Accordion */}
+                  <ScrollReveal variant="fade-left" className="lg:col-span-6 space-y-5">
                     <div className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
                       <Crown className="h-4 w-4 text-amber-500 fill-amber-500" />
                       <span>About InvoicePro</span>
@@ -836,14 +842,26 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                           <div
                             key={idx}
                             onClick={() => setActiveAccordion(idx)}
-                            className={`cursor-pointer rounded-2xl transition-all duration-300 p-5 ${isOpen
-                                ? 'bg-[#d4f4e7] dark:bg-emerald-950/60 border-l-4 border-[#0d9f6e] text-slate-900 dark:text-white shadow-xs'
-                                : 'bg-white/80 dark:bg-slate-900/70 hover:bg-white dark:hover:bg-slate-900 text-slate-800 dark:text-slate-200 border border-emerald-100 dark:border-slate-800'
-                              }`}
+                            className={`cursor-pointer rounded-2xl transition-all duration-300 p-5 ${
+                              isOpen
+                                ? 'bg-[#d4f4e7] dark:bg-emerald-950/60 border-l-4 border-[#0d9f6e] text-slate-900 dark:text-white shadow-sm translate-x-1'
+                                : 'bg-white/80 dark:bg-slate-900/70 hover:bg-white dark:hover:bg-slate-900 text-slate-800 dark:text-slate-200 border border-emerald-100 dark:border-slate-800 hover:translate-x-0.5'
+                            }`}
                           >
-                            <div className="text-base font-extrabold">{acc.title}</div>
-                            {isOpen && (
-                              <div className="mt-2.5 space-y-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+                            <div className="flex items-center justify-between">
+                              <div className="text-base font-extrabold">{acc.title}</div>
+                              <ChevronDown
+                                className={`h-4 w-4 text-[#0d9f6e] transition-transform duration-300 ${
+                                  isOpen ? 'rotate-180' : ''
+                                }`}
+                              />
+                            </div>
+                            <div
+                              className={`grid transition-all duration-300 ease-out ${
+                                isOpen ? 'grid-rows-[1fr] opacity-100 mt-2.5' : 'grid-rows-[0fr] opacity-0 mt-0'
+                              }`}
+                            >
+                              <div className="overflow-hidden space-y-2.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
                                 <p className="leading-relaxed">{acc.desc}</p>
                                 <ul className="space-y-1.5 pt-1">
                                   {acc.bullets.map((b, j) => (
@@ -854,17 +872,17 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                                   ))}
                                 </ul>
                               </div>
-                            )}
+                            </div>
                           </div>
                         );
                       })}
                     </div>
-                  </div>
+                  </ScrollReveal>
                 </div>
 
-                {/* Part B: "An Online Invoicing Software" + Interactive Invoice Status Donut Chart */}
+                {/* Part B: "An Online Invoicing Software" + Clean Reference Invoice Status Donut Card */}
                 <div className="grid lg:grid-cols-12 gap-14 xl:gap-20 items-center">
-                  <div className="lg:col-span-6 space-y-6">
+                  <ScrollReveal variant="fade-right" className="lg:col-span-6 space-y-6">
                     <div className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
                       <Crown className="h-4 w-4 text-amber-500 fill-amber-500" />
                       <span>Why Choose Us</span>
@@ -879,8 +897,8 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                     </p>
 
                     <div className="space-y-5 pt-2">
-                      <div className="flex items-start gap-4">
-                        <div className="h-11 w-11 rounded-2xl bg-[#d1f3e6] dark:bg-emerald-950 text-[#0d9f6e] dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="group flex items-start gap-4">
+                        <div className="h-11 w-11 rounded-2xl bg-[#d1f3e6] dark:bg-emerald-950 text-[#0d9f6e] dark:text-emerald-400 group-hover:bg-[#0d9f6e] group-hover:text-white flex items-center justify-center shrink-0 mt-0.5 transition-all duration-300 group-hover:scale-110">
                           <Clock className="h-5 w-5" />
                         </div>
                         <div>
@@ -891,8 +909,8 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                         </div>
                       </div>
 
-                      <div className="flex items-start gap-4">
-                        <div className="h-11 w-11 rounded-2xl bg-[#d1f3e6] dark:bg-emerald-950 text-[#0d9f6e] dark:text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="group flex items-start gap-4">
+                        <div className="h-11 w-11 rounded-2xl bg-[#d1f3e6] dark:bg-emerald-950 text-[#0d9f6e] dark:text-emerald-400 group-hover:bg-[#0d9f6e] group-hover:text-white flex items-center justify-center shrink-0 mt-0.5 transition-all duration-300 group-hover:scale-110">
                           <Sparkles className="h-5 w-5" />
                         </div>
                         <div>
@@ -903,14 +921,119 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </ScrollReveal>
 
-                  {/* Right Column: Interactive Orbiting Donut Motion Graphic Card ("Invoice Status") */}
-                  <div className="lg:col-span-6 flex justify-center">
+                  {/* Right Column: Reference Donut Chart Card ("Invoice Status") with Pro Animations */}
+                  <ScrollReveal variant="scale-up" delayMs={120} className="lg:col-span-6 flex justify-center">
                     <Interactive3DTiltCard className="w-full max-w-lg rounded-3xl bg-white dark:bg-slate-900 p-8 sm:p-10 shadow-xl border border-emerald-100 dark:border-slate-800 text-center space-y-6 text-slate-800 dark:text-slate-100">
-                      <AnimatedInvoiceStatusDonut isSw={language === 'sw'} />
+                      {/* Multi-Segment SVG Donut Chart matching the reference template */}
+                      <div className="relative mx-auto h-56 w-56 flex items-center justify-center">
+                        <svg viewBox="0 0 36 36" className="h-full w-full -rotate-90 overflow-visible">
+                          <circle
+                            cx="18"
+                            cy="18"
+                            r="14"
+                            fill="transparent"
+                            stroke="currentColor"
+                            className="text-slate-100 dark:text-slate-800"
+                            strokeWidth="4.5"
+                          />
+                          {/* Emerald Segment: Paid (48%) */}
+                          <circle
+                            cx="18"
+                            cy="18"
+                            r="14"
+                            fill="transparent"
+                            stroke="#0d9f6e"
+                            strokeWidth={activeDonutMetric === 'collected' ? '5.8' : '4.5'}
+                            strokeDasharray="42 88"
+                            strokeDashoffset="0"
+                            className="transition-all duration-500 ease-out cursor-pointer"
+                            onMouseEnter={() => setActiveDonutMetric('collected')}
+                            onClick={() => setActiveDonutMetric('collected')}
+                          />
+                          {/* Coral/Red Segment: Overdue (28%) */}
+                          <circle
+                            cx="18"
+                            cy="18"
+                            r="14"
+                            fill="transparent"
+                            stroke="#ef4444"
+                            strokeWidth={activeDonutMetric === 'overdue' ? '5.8' : '4.5'}
+                            strokeDasharray="25 88"
+                            strokeDashoffset="-43"
+                            className="transition-all duration-500 ease-out cursor-pointer"
+                            onMouseEnter={() => setActiveDonutMetric('overdue')}
+                            onClick={() => setActiveDonutMetric('overdue')}
+                          />
+                          {/* Amber Segment: Partially Paid / Issued (24%) */}
+                          <circle
+                            cx="18"
+                            cy="18"
+                            r="14"
+                            fill="transparent"
+                            stroke="#f59e0b"
+                            strokeWidth={activeDonutMetric === 'outstanding' ? '5.8' : '4.5'}
+                            strokeDasharray="20 88"
+                            strokeDashoffset="-69"
+                            className="transition-all duration-500 ease-out cursor-pointer"
+                            onMouseEnter={() => setActiveDonutMetric('outstanding')}
+                            onClick={() => setActiveDonutMetric('outstanding')}
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                          <span className="text-sm font-extrabold text-slate-900 dark:text-white">Invoice</span>
+                          <span className="text-sm font-extrabold text-slate-900 dark:text-white">Status</span>
+                        </div>
+                      </div>
+
+                      {/* Interactive Legend Row with Animated Counters */}
+                      <div className="grid grid-cols-3 gap-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+                        <button
+                          type="button"
+                          onClick={() => setActiveDonutMetric('collected')}
+                          className={`rounded-xl p-2.5 transition-all duration-300 cursor-pointer ${
+                            activeDonutMetric === 'collected'
+                              ? 'bg-emerald-50 dark:bg-emerald-950/60 ring-1 ring-[#0d9f6e] -translate-y-0.5'
+                              : 'hover:bg-slate-50 dark:hover:bg-slate-800'
+                          }`}
+                        >
+                          <div className="text-slate-500 dark:text-slate-400">Cash Collected</div>
+                          <div className="font-extrabold text-[#0d9f6e] dark:text-emerald-400 mt-1">
+                            <AnimatedCounter value={7133000} prefix="TSh " />
+                          </div>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setActiveDonutMetric('outstanding')}
+                          className={`rounded-xl p-2.5 transition-all duration-300 cursor-pointer ${
+                            activeDonutMetric === 'outstanding'
+                              ? 'bg-amber-50 dark:bg-amber-950/60 ring-1 ring-amber-500 -translate-y-0.5'
+                              : 'hover:bg-slate-50 dark:hover:bg-slate-800'
+                          }`}
+                        >
+                          <div className="text-slate-500 dark:text-slate-400">Outstanding</div>
+                          <div className="font-extrabold text-amber-600 dark:text-amber-400 mt-1">
+                            <AnimatedCounter value={3009000} prefix="TSh " />
+                          </div>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setActiveDonutMetric('overdue')}
+                          className={`rounded-xl p-2.5 transition-all duration-300 cursor-pointer ${
+                            activeDonutMetric === 'overdue'
+                              ? 'bg-red-50 dark:bg-red-950/60 ring-1 ring-red-500 -translate-y-0.5'
+                              : 'hover:bg-slate-50 dark:hover:bg-slate-800'
+                          }`}
+                        >
+                          <div className="text-slate-500 dark:text-slate-400">Overdue</div>
+                          <div className="font-extrabold text-red-600 dark:text-red-400 mt-1">
+                            <AnimatedCounter value={2720000} prefix="TSh " />
+                          </div>
+                        </button>
+                      </div>
                     </Interactive3DTiltCard>
-                  </div>
+                  </ScrollReveal>
                 </div>
               </div>
             </section>
@@ -921,7 +1044,7 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
             <section className="w-full py-24 lg:py-28 bg-white dark:bg-slate-950 transition-colors duration-300">
               <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 space-y-20">
                 <div className="space-y-14">
-                  <div className="text-center max-w-2xl mx-auto space-y-3">
+                  <ScrollReveal variant="fade-up" className="text-center max-w-2xl mx-auto space-y-3">
                     <div className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
                       <Crown className="h-4 w-4 text-amber-500 fill-amber-500" />
                       <span>Process</span>
@@ -932,231 +1055,245 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                     <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">
                       From client quotation and project timesheets to verified payment receipts in three structured steps.
                     </p>
-                  </div>
+                  </ScrollReveal>
 
                   <div className="grid md:grid-cols-3 gap-8 xl:gap-10">
                     {/* Step Card 1: Soft Cream */}
-                    <div className="premium-card-lift rounded-3xl bg-[#fdf8e7] dark:bg-slate-900 dark:border dark:border-amber-900/40 p-7 sm:p-8 space-y-6 text-slate-800 dark:text-slate-100">
-                      <div className="rounded-2xl bg-white dark:bg-slate-800 p-5 shadow-xs space-y-3.5">
-                        <div className="text-xs font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">
-                          Proposals & Quotes
+                    <ScrollReveal variant="fade-up" delayMs={0}>
+                      <div className="group premium-card-lift h-full rounded-3xl bg-[#fdf8e7] dark:bg-slate-900 dark:border dark:border-amber-900/40 p-7 sm:p-8 space-y-6 text-slate-800 dark:text-slate-100">
+                        <div className="rounded-2xl bg-white dark:bg-slate-800 p-5 shadow-xs space-y-3.5 transition-transform duration-300 group-hover:-translate-y-1">
+                          <div className="text-xs font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">
+                            Proposals & Quotes
+                          </div>
+                          <div className="flex items-center gap-3 text-xs sm:text-sm">
+                            <span className="h-7 w-7 rounded-full bg-amber-400 text-slate-950 font-extrabold flex items-center justify-center text-xs transition-transform duration-300 group-hover:scale-110">
+                              01
+                            </span>
+                            <span className="font-semibold text-slate-700 dark:text-slate-200">Approved Quotation</span>
+                          </div>
+                          <div className="flex items-center gap-3 text-xs sm:text-sm">
+                            <span className="h-7 w-7 rounded-full bg-[#0d9f6e] text-white font-extrabold flex items-center justify-center text-xs transition-transform duration-300 group-hover:scale-110">
+                              02
+                            </span>
+                            <span className="font-semibold text-slate-700 dark:text-slate-200">Billable Project Hours</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-3 text-xs sm:text-sm">
-                          <span className="h-7 w-7 rounded-full bg-amber-400 text-slate-950 font-extrabold flex items-center justify-center text-xs">
-                            01
-                          </span>
-                          <span className="font-semibold text-slate-700 dark:text-slate-200">Approved Quotation</span>
-                        </div>
-                        <div className="flex items-center gap-3 text-xs sm:text-sm">
-                          <span className="h-7 w-7 rounded-full bg-[#0d9f6e] text-white font-extrabold flex items-center justify-center text-xs">
-                            02
-                          </span>
-                          <span className="font-semibold text-slate-700 dark:text-slate-200">Billable Project Hours</span>
+                        <div className="text-center space-y-2 px-2">
+                          <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
+                            Track Time, Expenses & Quotes
+                          </h3>
+                          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Create client quotations, log approved project hours, and convert directly into sequential commercial invoices.
+                          </p>
                         </div>
                       </div>
-                      <div className="text-center space-y-2 px-2">
-                        <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
-                          Track Time, Expenses & Quotes
-                        </h3>
-                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                          Create client quotations, log approved project hours, and convert directly into sequential commercial invoices.
-                        </p>
-                      </div>
-                    </div>
+                    </ScrollReveal>
 
                     {/* Step Card 2: Soft Mint */}
-                    <div className="premium-card-lift rounded-3xl bg-[#eafaf4] dark:bg-slate-900 dark:border dark:border-emerald-900/40 p-7 sm:p-8 space-y-6 text-slate-800 dark:text-slate-100">
-                      <div className="rounded-2xl bg-white dark:bg-slate-800 p-5 shadow-xs space-y-3.5">
-                        <div className="text-xs font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">
-                          Revenue Flow
-                        </div>
-                        <div className="h-24 flex items-end justify-between gap-2.5 pt-2 px-3">
-                          {[45, 75, 55, 95, 65, 85].map((h, i) => (
-                            <div key={i} className="w-full flex flex-col items-center gap-1 h-full justify-end">
-                              <div
-                                style={{ height: `${h}%` }}
-                                className={`w-3 rounded-t-full animate-bar-grow ${i % 2 === 0 ? 'bg-[#0d9f6e]' : 'bg-emerald-200 dark:bg-emerald-800'
+                    <ScrollReveal variant="fade-up" delayMs={120}>
+                      <div className="group premium-card-lift h-full rounded-3xl bg-[#eafaf4] dark:bg-slate-900 dark:border dark:border-emerald-900/40 p-7 sm:p-8 space-y-6 text-slate-800 dark:text-slate-100">
+                        <div className="rounded-2xl bg-white dark:bg-slate-800 p-5 shadow-xs space-y-3.5 transition-transform duration-300 group-hover:-translate-y-1">
+                          <div className="text-xs font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">
+                            Revenue Flow
+                          </div>
+                          <div className="h-24 flex items-end justify-between gap-2.5 pt-2 px-3">
+                            {[45, 75, 55, 95, 65, 85].map((h, i) => (
+                              <div key={i} className="w-full flex flex-col items-center gap-1 h-full justify-end">
+                                <div
+                                  style={{ height: `${h}%`, animationDelay: `${i * 90}ms` }}
+                                  className={`w-3 rounded-t-full animate-bar-grow transition-transform duration-300 group-hover:scale-y-105 ${
+                                    i % 2 === 0 ? 'bg-[#0d9f6e]' : 'bg-emerald-200 dark:bg-emerald-800'
                                   }`}
-                              />
-                            </div>
-                          ))}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="text-center space-y-2 px-2">
+                          <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
+                            Your Finances In One Place
+                          </h3>
+                          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Distinguish total invoiced value from cash actually collected across aging buckets and currencies.
+                          </p>
                         </div>
                       </div>
-                      <div className="text-center space-y-2 px-2">
-                        <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
-                          Your Finances In One Place
-                        </h3>
-                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                          Distinguish total invoiced value from cash actually collected across aging buckets and currencies.
-                        </p>
-                      </div>
-                    </div>
+                    </ScrollReveal>
 
                     {/* Step Card 3: Soft Warm Peach */}
-                    <div className="premium-card-lift rounded-3xl bg-[#fef4e8] dark:bg-slate-900 dark:border dark:border-orange-900/40 p-7 sm:p-8 space-y-6 text-slate-800 dark:text-slate-100">
-                      <div className="rounded-2xl bg-white dark:bg-slate-800 p-5 shadow-xs space-y-3">
-                        <div className="text-xs font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">
-                          All Transactions
+                    <ScrollReveal variant="fade-up" delayMs={240}>
+                      <div className="group premium-card-lift h-full rounded-3xl bg-[#fef4e8] dark:bg-slate-900 dark:border dark:border-orange-900/40 p-7 sm:p-8 space-y-6 text-slate-800 dark:text-slate-100">
+                        <div className="rounded-2xl bg-white dark:bg-slate-800 p-5 shadow-xs space-y-3 transition-transform duration-300 group-hover:-translate-y-1">
+                          <div className="text-xs font-extrabold uppercase tracking-wider text-slate-900 dark:text-white">
+                            All Transactions
+                          </div>
+                          <div className="flex items-center justify-between rounded-xl bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs transition-transform duration-300 group-hover:translate-x-1">
+                            <span className="font-semibold">M-Pesa Lipa Namba</span>
+                            <span className="text-[#0d9f6e] dark:text-emerald-400 font-extrabold">
+                              +<AnimatedCounter value={2000000} />
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between rounded-xl bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs transition-transform duration-300 delay-75 group-hover:translate-x-1">
+                            <span className="font-semibold">CRDB Bank RTGS</span>
+                            <span className="text-[#0d9f6e] dark:text-emerald-400 font-extrabold">
+                              +<AnimatedCounter value={5133000} />
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between rounded-xl bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs">
-                          <span className="font-semibold">M-Pesa Lipa Namba</span>
-                          <span className="text-[#0d9f6e] dark:text-emerald-400 font-extrabold">+2,000,000</span>
-                        </div>
-                        <div className="flex items-center justify-between rounded-xl bg-slate-50 dark:bg-slate-900 px-3 py-2 text-xs">
-                          <span className="font-semibold">CRDB Bank RTGS</span>
-                          <span className="text-[#0d9f6e] dark:text-emerald-400 font-extrabold">+5,133,000</span>
+                        <div className="text-center space-y-2 px-2">
+                          <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
+                            Record & Verify Payments
+                          </h3>
+                          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                            Allocate partial or full payments with idempotency protection and generate instant sequential receipts.
+                          </p>
                         </div>
                       </div>
-                      <div className="text-center space-y-2 px-2">
-                        <h3 className="text-lg font-extrabold text-slate-900 dark:text-white">
-                          Record & Verify Payments
-                        </h3>
-                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                          Allocate partial or full payments with idempotency protection and generate instant sequential receipts.
-                        </p>
-                      </div>
-                    </div>
+                    </ScrollReveal>
                   </div>
                 </div>
 
                 {/* INTERACTIVE DECIMAL-SAFE INVOICE & VAT SANDBOX WIDGET */}
-                <div className="rounded-3xl border border-emerald-100 dark:border-slate-800 bg-gradient-to-br from-[#f4fcf9] via-white to-[#ebfaf4] dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950/30 p-8 sm:p-10 lg:p-12 shadow-lg">
-                  <div className="grid lg:grid-cols-12 gap-10 items-center">
-                    <div className="lg:col-span-7 space-y-6">
-                      <div className="inline-flex items-center gap-2 rounded-full bg-[#0d9f6e]/10 dark:bg-emerald-950 px-3.5 py-1 text-xs font-extrabold text-[#0d9f6e] dark:text-emerald-400">
-                        <Calculator className="h-3.5 w-3.5" />
-                        <span>Interactive Decimal-Safe Calculation Engine</span>
-                      </div>
-                      <h3 className="font-display text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white">
-                        {language === 'sw'
-                          ? 'Jaribu Kikokotoo cha Ankara, VAT na Malipo ya Awamu'
-                          : 'Test Our Live Invoice, VAT & Partial Payment Engine'}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Every calculation in InvoicePro runs through our exact integer minor-unit (`BigInt`) financial engine—never floating-point approximations. Adjust the values below to preview real-time invoice and partial deposit reconciliation.
-                      </p>
+                <ScrollReveal variant="fade-up" delayMs={100}>
+                  <div className="rounded-3xl border border-emerald-100 dark:border-slate-800 bg-gradient-to-br from-[#f4fcf9] via-white to-[#ebfaf4] dark:from-slate-900 dark:via-slate-900 dark:to-emerald-950/30 p-8 sm:p-10 lg:p-12 shadow-lg">
+                    <div className="grid lg:grid-cols-12 gap-10 items-center">
+                      <div className="lg:col-span-7 space-y-6">
+                        <div className="inline-flex items-center gap-2 rounded-full bg-[#0d9f6e]/10 dark:bg-emerald-950 px-3.5 py-1 text-xs font-extrabold text-[#0d9f6e] dark:text-emerald-400">
+                          <Calculator className="h-3.5 w-3.5" />
+                          <span>Interactive Decimal-Safe Calculation Engine</span>
+                        </div>
+                        <h3 className="font-display text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white">
+                          {language === 'sw'
+                            ? 'Jaribu Kikokotoo cha Ankara, VAT na Malipo ya Awamu'
+                            : 'Test Our Live Invoice, VAT & Partial Payment Engine'}
+                        </h3>
+                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                          Every calculation in InvoicePro runs through our exact integer minor-unit (`BigInt`) financial engine—never floating-point approximations. Adjust the values below to preview real-time invoice and partial deposit reconciliation.
+                        </p>
 
-                      <div className="grid sm:grid-cols-3 gap-4 text-xs">
-                        <div>
-                          <label className="block font-bold uppercase text-slate-500 dark:text-slate-400 mb-1.5">
-                            Currency
-                          </label>
-                          <select
-                            value={sandboxCurrency}
-                            onChange={(e) => setSandboxCurrency(e.target.value as CurrencyCode)}
-                            className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 font-extrabold"
-                          >
-                            <option value="TZS">TZS (TSh)</option>
-                            <option value="KES">KES (KSh)</option>
-                            <option value="UGX">UGX (USh)</option>
-                            <option value="USD">USD ($)</option>
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block font-bold uppercase text-slate-500 dark:text-slate-400 mb-1.5">
-                            Unit Price
-                          </label>
-                          <input
-                            type="number"
-                            min="0"
-                            value={sandboxUnitPrice}
-                            onChange={(e) => setSandboxUnitPrice(e.target.value)}
-                            className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 font-extrabold"
-                          />
-                        </div>
-                        <div>
-                          <label className="block font-bold uppercase text-slate-500 dark:text-slate-400 mb-1.5">
-                            Configurable VAT (%)
-                          </label>
-                          <select
-                            value={sandboxTaxRate}
-                            onChange={(e) => setSandboxTaxRate(e.target.value)}
-                            className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 font-extrabold"
-                          >
-                            <option value="18.00">18% (Tanzania / Uganda / Rwanda)</option>
-                            <option value="16.00">16% (Kenya Standard)</option>
-                            <option value="0.00">0% (Exempt / Zero-Rated)</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex justify-between text-xs font-bold">
-                          <span className="text-slate-600 dark:text-slate-300">
-                            Simulated Mobilization Deposit / Partial Payment
-                          </span>
-                          <span className="text-[#0d9f6e] dark:text-emerald-400">{sandboxDepositPercent}% Paid</span>
-                        </div>
-                        <div className="flex gap-2">
-                          {[0, 30, 50, 75, 100].map((pct) => (
-                            <button
-                              key={pct}
-                              type="button"
-                              onClick={() => setSandboxDepositPercent(pct)}
-                              className={`flex-1 rounded-xl py-2 text-xs font-extrabold transition cursor-pointer ${sandboxDepositPercent === pct
-                                  ? 'bg-[#0d9f6e] text-white shadow-xs'
-                                  : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300'
-                                }`}
+                        <div className="grid sm:grid-cols-3 gap-4 text-xs">
+                          <div>
+                            <label className="block font-bold uppercase text-slate-500 dark:text-slate-400 mb-1.5">
+                              Currency
+                            </label>
+                            <select
+                              value={sandboxCurrency}
+                              onChange={(e) => setSandboxCurrency(e.target.value as CurrencyCode)}
+                              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 font-extrabold"
                             >
-                              {pct}%
-                            </button>
-                          ))}
+                              <option value="TZS">TZS (TSh)</option>
+                              <option value="KES">KES (KSh)</option>
+                              <option value="UGX">UGX (USh)</option>
+                              <option value="USD">USD ($)</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block font-bold uppercase text-slate-500 dark:text-slate-400 mb-1.5">
+                              Unit Price
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={sandboxUnitPrice}
+                              onChange={(e) => setSandboxUnitPrice(e.target.value)}
+                              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 font-extrabold"
+                            />
+                          </div>
+                          <div>
+                            <label className="block font-bold uppercase text-slate-500 dark:text-slate-400 mb-1.5">
+                              Configurable VAT (%)
+                            </label>
+                            <select
+                              value={sandboxTaxRate}
+                              onChange={(e) => setSandboxTaxRate(e.target.value)}
+                              className="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 font-extrabold"
+                            >
+                              <option value="18.00">18% (Tanzania / Uganda / Rwanda)</option>
+                              <option value="16.00">16% (Kenya Standard)</option>
+                              <option value="0.00">0% (Exempt / Zero-Rated)</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <div className="flex justify-between text-xs font-bold">
+                            <span className="text-slate-600 dark:text-slate-300">
+                              Simulated Mobilization Deposit / Partial Payment
+                            </span>
+                            <span className="text-[#0d9f6e] dark:text-emerald-400">{sandboxDepositPercent}% Paid</span>
+                          </div>
+                          <div className="flex gap-2">
+                            {[0, 30, 50, 75, 100].map((pct) => (
+                              <button
+                                key={pct}
+                                type="button"
+                                onClick={() => setSandboxDepositPercent(pct)}
+                                className={`flex-1 rounded-xl py-2 text-xs font-extrabold transition-all duration-300 cursor-pointer ${
+                                  sandboxDepositPercent === pct
+                                    ? 'bg-[#0d9f6e] text-white shadow-sm -translate-y-0.5'
+                                    : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:-translate-y-0.5'
+                                }`}
+                              >
+                                {pct}%
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {/* Live Calculated Output Card */}
-                    <div className="lg:col-span-5 rounded-3xl bg-slate-900 text-white p-7 sm:p-8 space-y-4 shadow-xl">
-                      <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-                        <div className="flex items-center gap-2">
-                          <Activity className="h-4 w-4 text-emerald-400" />
-                          <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                            Live Reconciliation Preview
+                      {/* Live Calculated Output Card */}
+                      <div className="lg:col-span-5 rounded-3xl bg-slate-900 text-white p-7 sm:p-8 space-y-4 shadow-xl">
+                        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+                          <div className="flex items-center gap-2">
+                            <Activity className="h-4 w-4 text-emerald-400" />
+                            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                              Live Reconciliation Preview
+                            </span>
+                          </div>
+                          <span className="rounded-full bg-emerald-500/20 border border-emerald-400/30 px-2.5 py-0.5 text-[10px] font-extrabold uppercase text-emerald-300">
+                            {sandboxBalanceInfo.isFullyPaid
+                              ? 'Paid'
+                              : sandboxBalanceInfo.isPartiallyPaid
+                                ? 'Partially Paid'
+                                : 'Issued'}
                           </span>
                         </div>
-                        <span className="rounded-full bg-emerald-500/20 border border-emerald-400/30 px-2.5 py-0.5 text-[10px] font-extrabold uppercase text-emerald-300">
-                          {sandboxBalanceInfo.isFullyPaid
-                            ? 'Paid'
-                            : sandboxBalanceInfo.isPartiallyPaid
-                              ? 'Partially Paid'
-                              : 'Issued'}
-                        </span>
-                      </div>
 
-                      <div className="space-y-2.5 text-xs sm:text-sm">
-                        <div className="flex justify-between text-slate-400">
-                          <span>Subtotal (Net)</span>
-                          <span className="font-bold text-white">
-                            {formatMoney(sandboxTotals.subtotal, sandboxCurrency)}
+                        <div className="space-y-2.5 text-xs sm:text-sm">
+                          <div className="flex justify-between text-slate-400">
+                            <span>Subtotal (Net)</span>
+                            <span className="font-bold text-white">
+                              {formatMoney(sandboxTotals.subtotal, sandboxCurrency)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-slate-400">
+                            <span>Configured Tax ({sandboxTaxRate}%)</span>
+                            <span className="font-bold text-white">
+                              {formatMoney(sandboxTotals.taxTotal, sandboxCurrency)}
+                            </span>
+                          </div>
+                          <div className="flex justify-between border-t border-slate-800 pt-2.5 font-extrabold text-base">
+                            <span>Grand Total</span>
+                            <span>{formatMoney(sandboxTotals.grandTotal, sandboxCurrency)}</span>
+                          </div>
+                          <div className="flex justify-between text-emerald-400 font-bold">
+                            <span>Allocated Payment ({sandboxDepositPercent}%)</span>
+                            <span>-{formatMoney(depositPaidRaw, sandboxCurrency)}</span>
+                          </div>
+                        </div>
+
+                        <div className="rounded-2xl bg-white/5 border border-white/10 p-4 flex items-center justify-between">
+                          <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                            Remaining Balance Due
+                          </span>
+                          <span className="text-lg sm:text-xl font-extrabold text-amber-300">
+                            {formatMoney(sandboxBalanceInfo.balanceDue, sandboxCurrency)}
                           </span>
                         </div>
-                        <div className="flex justify-between text-slate-400">
-                          <span>Configured Tax ({sandboxTaxRate}%)</span>
-                          <span className="font-bold text-white">
-                            {formatMoney(sandboxTotals.taxTotal, sandboxCurrency)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between border-t border-slate-800 pt-2.5 font-extrabold text-base">
-                          <span>Grand Total</span>
-                          <span>{formatMoney(sandboxTotals.grandTotal, sandboxCurrency)}</span>
-                        </div>
-                        <div className="flex justify-between text-emerald-400 font-bold">
-                          <span>Allocated Payment ({sandboxDepositPercent}%)</span>
-                          <span>-{formatMoney(depositPaidRaw, sandboxCurrency)}</span>
-                        </div>
-                      </div>
-
-                      <div className="rounded-2xl bg-white/5 border border-white/10 p-4 flex items-center justify-between">
-                        <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                          Remaining Balance Due
-                        </span>
-                        <span className="text-lg sm:text-xl font-extrabold text-amber-300">
-                          {formatMoney(sandboxBalanceInfo.balanceDue, sandboxCurrency)}
-                        </span>
                       </div>
                     </div>
                   </div>
-                </div>
+                </ScrollReveal>
               </div>
             </section>
 
@@ -1165,7 +1302,7 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                --------------------------------------------------------------- */}
             <section className="w-full py-24 lg:py-28 bg-[#ebfaf4] dark:bg-slate-900/80 transition-colors duration-300">
               <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 space-y-14">
-                <div className="text-center max-w-2xl mx-auto space-y-4">
+                <ScrollReveal variant="fade-up" className="text-center max-w-2xl mx-auto space-y-4">
                   <div className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
                     <Crown className="h-4 w-4 text-amber-500 fill-amber-500" />
                     <span>Price</span>
@@ -1182,143 +1319,151 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                     <button
                       type="button"
                       onClick={() => setPlanInterval('monthly')}
-                      className={`rounded-full px-5 py-2 text-xs font-extrabold transition-all cursor-pointer ${planInterval === 'monthly'
+                      className={`rounded-full px-5 py-2 text-xs font-extrabold transition-all duration-300 cursor-pointer ${
+                        planInterval === 'monthly'
                           ? 'bg-[#0d9f6e] text-white shadow-xs'
                           : 'text-slate-600 dark:text-slate-400'
-                        }`}
+                      }`}
                     >
                       Monthly Billing
                     </button>
                     <button
                       type="button"
                       onClick={() => setPlanInterval('annual')}
-                      className={`rounded-full px-5 py-2 text-xs font-extrabold transition-all cursor-pointer ${planInterval === 'annual'
+                      className={`rounded-full px-5 py-2 text-xs font-extrabold transition-all duration-300 cursor-pointer ${
+                        planInterval === 'annual'
                           ? 'bg-[#0d9f6e] text-white shadow-xs'
                           : 'text-slate-600 dark:text-slate-400'
-                        }`}
+                      }`}
                     >
                       Annual Billing (2 Months Free)
                     </button>
                   </div>
-                </div>
+                </ScrollReveal>
 
                 <div className="grid md:grid-cols-3 gap-8 xl:gap-10 items-center max-w-7xl mx-auto">
                   {/* Left Card: Business Plan */}
-                  <div className="premium-card-lift rounded-3xl bg-white dark:bg-slate-900 p-8 sm:p-9 shadow-md border border-emerald-100 dark:border-slate-800 text-slate-800 dark:text-slate-100 space-y-7">
-                    <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-5">
-                      <div className="h-12 w-12 rounded-2xl bg-[#1e2538] text-white flex items-center justify-center font-bold">
-                        <Building2 className="h-6 w-6" />
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                          Business
+                  <ScrollReveal variant="fade-up" delayMs={0}>
+                    <div className="premium-card-lift rounded-3xl bg-white dark:bg-slate-900 p-8 sm:p-9 shadow-md border border-emerald-100 dark:border-slate-800 text-slate-800 dark:text-slate-100 space-y-7">
+                      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-5">
+                        <div className="h-12 w-12 rounded-2xl bg-[#1e2538] text-white flex items-center justify-center font-bold">
+                          <Building2 className="h-6 w-6" />
                         </div>
-                        <div className="text-2xl font-extrabold text-[#0d9f6e] dark:text-emerald-400 mt-0.5">
-                          {planInterval === 'monthly' ? 'TSh 50,000' : 'TSh 500,000'}
-                          <span className="text-xs font-normal text-slate-400">
-                            /{planInterval === 'monthly' ? 'mo' : 'yr'}
-                          </span>
+                        <div className="text-right">
+                          <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                            Business
+                          </div>
+                          <div className="text-2xl font-extrabold text-[#0d9f6e] dark:text-emerald-400 mt-0.5">
+                            {planInterval === 'monthly' ? 'TSh 50,000' : 'TSh 500,000'}
+                            <span className="text-xs font-normal text-slate-400">
+                              /{planInterval === 'monthly' ? 'mo' : 'yr'}
+                            </span>
+                          </div>
                         </div>
                       </div>
+                      <ul className="space-y-3.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                        <li className="flex items-center gap-2.5">
+                          <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Up to 10,000 invoices / month
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Up to 25 team members & roles
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Projects, Time & AI Assistant
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Custom branding & CSV exports
+                        </li>
+                      </ul>
+                      <Link
+                        to="/register"
+                        className="btn-shimmer block w-full text-center rounded-full bg-[#0d9f6e] py-3 text-xs sm:text-sm font-extrabold text-white hover:bg-emerald-700 transition"
+                      >
+                        Start Free 14-Day Trial
+                      </Link>
                     </div>
-                    <ul className="space-y-3.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
-                      <li className="flex items-center gap-2.5">
-                        <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Up to 10,000 invoices / month
-                      </li>
-                      <li className="flex items-center gap-2.5">
-                        <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Up to 25 team members & roles
-                      </li>
-                      <li className="flex items-center gap-2.5">
-                        <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Projects, Time & AI Assistant
-                      </li>
-                      <li className="flex items-center gap-2.5">
-                        <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Custom branding & CSV exports
-                      </li>
-                    </ul>
-                    <Link
-                      to="/register"
-                      className="btn-shimmer block w-full text-center rounded-full bg-[#0d9f6e] py-3 text-xs sm:text-sm font-extrabold text-white hover:bg-emerald-700 transition"
-                    >
-                      Start Free 14-Day Trial
-                    </Link>
-                  </div>
+                  </ScrollReveal>
 
                   {/* Center Card: Highlighted Emerald Card (Professional Plan) */}
-                  <div className="premium-card-lift rounded-3xl bg-[#0d9f6e] p-9 sm:p-10 shadow-2xl text-white space-y-7 md:scale-105">
-                    <div className="flex items-center justify-between border-b border-white/20 pb-5">
-                      <div className="h-12 w-12 rounded-2xl bg-white/15 text-white flex items-center justify-center font-bold">
-                        <Crown className="h-6 w-6" />
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs font-bold uppercase tracking-wider text-emerald-100">
-                          Professional Plan
+                  <ScrollReveal variant="scale-up" delayMs={120}>
+                    <div className="premium-card-lift rounded-3xl bg-[#0d9f6e] p-9 sm:p-10 shadow-2xl text-white space-y-7 md:scale-105">
+                      <div className="flex items-center justify-between border-b border-white/20 pb-5">
+                        <div className="h-12 w-12 rounded-2xl bg-white/15 text-white flex items-center justify-center font-bold">
+                          <Crown className="h-6 w-6" />
                         </div>
-                        <div className="text-3xl font-extrabold text-white mt-0.5">
-                          {planInterval === 'monthly' ? 'TSh 25,000' : 'TSh 250,000'}
-                          <span className="text-xs font-normal text-emerald-100">
-                            /{planInterval === 'monthly' ? 'mo' : 'yr'}
-                          </span>
+                        <div className="text-right">
+                          <div className="text-xs font-bold uppercase tracking-wider text-emerald-100">
+                            Professional Plan
+                          </div>
+                          <div className="text-3xl font-extrabold text-white mt-0.5">
+                            {planInterval === 'monthly' ? 'TSh 25,000' : 'TSh 250,000'}
+                            <span className="text-xs font-normal text-emerald-100">
+                              /{planInterval === 'monthly' ? 'mo' : 'yr'}
+                            </span>
+                          </div>
                         </div>
                       </div>
+                      <ul className="space-y-3.5 text-xs sm:text-sm text-emerald-50">
+                        <li className="flex items-center gap-2.5">
+                          <Check className="h-4 w-4 text-white shrink-0" /> Up to 250 invoices / month
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="h-4 w-4 text-white shrink-0" /> Up to 5 team members
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="h-4 w-4 text-white shrink-0" /> Projects, Contracts & Time
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="h-4 w-4 text-white shrink-0" /> Safe AI Billing Assistant
+                        </li>
+                      </ul>
+                      <Link
+                        to="/register"
+                        className="btn-shimmer block w-full text-center rounded-full bg-white py-3.5 text-xs sm:text-sm font-extrabold text-[#0d9f6e] shadow-md hover:bg-emerald-50 transition"
+                      >
+                        Start Free 14-Day Trial
+                      </Link>
                     </div>
-                    <ul className="space-y-3.5 text-xs sm:text-sm text-emerald-50">
-                      <li className="flex items-center gap-2.5">
-                        <Check className="h-4 w-4 text-white shrink-0" /> Up to 250 invoices / month
-                      </li>
-                      <li className="flex items-center gap-2.5">
-                        <Check className="h-4 w-4 text-white shrink-0" /> Up to 5 team members
-                      </li>
-                      <li className="flex items-center gap-2.5">
-                        <Check className="h-4 w-4 text-white shrink-0" /> Projects, Contracts & Time
-                      </li>
-                      <li className="flex items-center gap-2.5">
-                        <Check className="h-4 w-4 text-white shrink-0" /> Safe AI Billing Assistant
-                      </li>
-                    </ul>
-                    <Link
-                      to="/register"
-                      className="btn-shimmer block w-full text-center rounded-full bg-white py-3.5 text-xs sm:text-sm font-extrabold text-[#0d9f6e] shadow-md hover:bg-emerald-50 transition"
-                    >
-                      Start Free 14-Day Trial
-                    </Link>
-                  </div>
+                  </ScrollReveal>
 
                   {/* Right Card: Forever Free / Starter */}
-                  <div className="premium-card-lift rounded-3xl bg-white dark:bg-slate-900 p-8 sm:p-9 shadow-md border border-emerald-100 dark:border-slate-800 text-slate-800 dark:text-slate-100 space-y-7">
-                    <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-5">
-                      <div className="h-12 w-12 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold">
-                        <Layers className="h-6 w-6" />
-                      </div>
-                      <div className="text-right">
-                        <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                          Forever Free
+                  <ScrollReveal variant="fade-up" delayMs={240}>
+                    <div className="premium-card-lift rounded-3xl bg-white dark:bg-slate-900 p-8 sm:p-9 shadow-md border border-emerald-100 dark:border-slate-800 text-slate-800 dark:text-slate-100 space-y-7">
+                      <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-5">
+                        <div className="h-12 w-12 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold">
+                          <Layers className="h-6 w-6" />
                         </div>
-                        <div className="text-2xl font-extrabold text-[#0d9f6e] dark:text-emerald-400 mt-0.5">
-                          TSh 0<span className="text-xs font-normal text-slate-400">/mo</span>
+                        <div className="text-right">
+                          <div className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                            Forever Free
+                          </div>
+                          <div className="text-2xl font-extrabold text-[#0d9f6e] dark:text-emerald-400 mt-0.5">
+                            TSh 0<span className="text-xs font-normal text-slate-400">/mo</span>
+                          </div>
                         </div>
                       </div>
+                      <ul className="space-y-3.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                        <li className="flex items-center gap-2.5">
+                          <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Up to 5 invoices / month
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Up to 10 saved clients
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Bilingual PDF Invoices & Quotes
+                        </li>
+                        <li className="flex items-center gap-2.5">
+                          <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Starter Plan available @ TSh 10k
+                        </li>
+                      </ul>
+                      <Link
+                        to="/register"
+                        className="block w-full text-center rounded-full bg-[#1e2538] dark:bg-slate-800 py-3 text-xs sm:text-sm font-extrabold text-white hover:bg-slate-800 dark:hover:bg-slate-700 transition"
+                      >
+                        Start For Free
+                      </Link>
                     </div>
-                    <ul className="space-y-3.5 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
-                      <li className="flex items-center gap-2.5">
-                        <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Up to 5 invoices / month
-                      </li>
-                      <li className="flex items-center gap-2.5">
-                        <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Up to 10 saved clients
-                      </li>
-                      <li className="flex items-center gap-2.5">
-                        <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Bilingual PDF Invoices & Quotes
-                      </li>
-                      <li className="flex items-center gap-2.5">
-                        <Check className="h-4 w-4 text-[#0d9f6e] shrink-0" /> Starter Plan available @ TSh 10k
-                      </li>
-                    </ul>
-                    <Link
-                      to="/register"
-                      className="block w-full text-center rounded-full bg-[#1e2538] dark:bg-slate-800 py-3 text-xs sm:text-sm font-extrabold text-white hover:bg-slate-800 dark:hover:bg-slate-700 transition"
-                    >
-                      Start For Free
-                    </Link>
-                  </div>
+                  </ScrollReveal>
                 </div>
               </div>
             </section>
@@ -1328,7 +1473,7 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                --------------------------------------------------------------- */}
             <section className="w-full py-24 lg:py-28 bg-white dark:bg-slate-950 transition-colors duration-300">
               <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-24 space-y-14 text-center">
-                <div className="max-w-2xl mx-auto space-y-3">
+                <ScrollReveal variant="fade-up" className="max-w-2xl mx-auto space-y-3">
                   <div className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300">
                     <Crown className="h-4 w-4 text-amber-500 fill-amber-500" />
                     <span>Built For Your Sector</span>
@@ -1341,7 +1486,7 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                   <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">
                     Purpose-built workflows for Tanzanian and East African service providers, agencies, and growing enterprises.
                   </p>
-                </div>
+                </ScrollReveal>
 
                 <div className="grid md:grid-cols-3 gap-8 xl:gap-12 pt-4">
                   {[
@@ -1367,25 +1512,24 @@ export const PublicWebsite: React.FC<{ page: PublicPageType }> = ({ page }) => {
                       text: 'Generate Proforma Invoices for procurement, record mobilization deposits and partial payments, and reconcile credit notes with a complete audit trail.',
                     },
                   ].map((spot, idx) => (
-                    <div
-                      key={idx}
-                      className="premium-card-lift rounded-3xl border border-slate-100 dark:border-slate-800/80 bg-slate-50/40 dark:bg-slate-900/50 p-8 space-y-4"
-                    >
-                      <div
-                        className={`mx-auto h-16 w-16 rounded-full ${spot.bg} text-white font-display text-lg font-bold flex items-center justify-center shadow-md border-4 border-emerald-50 dark:border-slate-800`}
-                      >
-                        {spot.initials}
-                      </div>
-                      <div>
-                        <h3 className="text-base font-extrabold text-slate-900 dark:text-white">{spot.role}</h3>
-                        <div className="text-xs font-bold text-[#0d9f6e] dark:text-emerald-400 mt-0.5">
-                          {spot.sub}
+                    <ScrollReveal key={idx} variant="fade-up" delayMs={idx * 130}>
+                      <div className="group premium-card-lift h-full rounded-3xl border border-slate-100 dark:border-slate-800/80 bg-slate-50/40 dark:bg-slate-900/50 p-8 space-y-4">
+                        <div
+                          className={`mx-auto h-16 w-16 rounded-full ${spot.bg} text-white font-display text-lg font-bold flex items-center justify-center shadow-md border-4 border-emerald-50 dark:border-slate-800 transition-transform duration-300 group-hover:scale-110 group-hover:-translate-y-1`}
+                        >
+                          {spot.initials}
                         </div>
+                        <div>
+                          <h3 className="text-base font-extrabold text-slate-900 dark:text-white">{spot.role}</h3>
+                          <div className="text-xs font-bold text-[#0d9f6e] dark:text-emerald-400 mt-0.5">
+                            {spot.sub}
+                          </div>
+                        </div>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                          {spot.text}
+                        </p>
                       </div>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-                        {spot.text}
-                      </p>
-                    </div>
+                    </ScrollReveal>
                   ))}
                 </div>
               </div>
