@@ -1,0 +1,338 @@
+@import "tailwindcss";
+
+/* Configure Tailwind v4 class-based dark mode so White (Light) is strictly the default theme
+   and toggling the .dark class on <html> switches themes seamlessly regardless of OS settings */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  html {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    scroll-behavior: smooth;
+    color-scheme: light;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+}
+
+.font-display {
+  font-family: 'Fraunces', Georgia, Cambria, 'Times New Roman', Times, serif;
+  letter-spacing: -0.025em;
+}
+
+/* ============================================================================
+   MODERN FINTECH MOTION & CHOREOGRAPHED INTERACTION SYSTEM
+   ============================================================================ */
+
+@keyframes fadeUpReveal {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.985);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes floatSlow {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-9px);
+  }
+}
+
+@keyframes floatDelayed {
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-7px) rotate(-0.6deg);
+  }
+}
+
+@keyframes floatBadge {
+
+  0%,
+  100% {
+    transform: translateY(0px) translateX(0px);
+  }
+
+  50% {
+    transform: translateY(-6px) translateX(3px);
+  }
+}
+
+@keyframes pulseRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(13, 159, 110, 0.45);
+  }
+
+  70% {
+    box-shadow: 0 0 0 14px rgba(13, 159, 110, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(13, 159, 110, 0);
+  }
+}
+
+@keyframes marqueeScroll {
+  0% {
+    transform: translateX(0%);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes shimmerSweep {
+  0% {
+    transform: translateX(-100%) skewX(-15deg);
+  }
+
+  100% {
+    transform: translateX(200%) skewX(-15deg);
+  }
+}
+
+@keyframes dashFlow {
+  to {
+    stroke-dashoffset: -48;
+  }
+}
+
+@keyframes dashFlowFast {
+  to {
+    stroke-dashoffset: -96;
+  }
+}
+
+@keyframes orbitSpin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes orbitSpinReverse {
+  from {
+    transform: rotate(360deg);
+  }
+
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes radarPing {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.85;
+  }
+
+  75%,
+  100% {
+    transform: scale(2.35);
+    opacity: 0;
+  }
+}
+
+@keyframes scanlineMove {
+  0% {
+    transform: translateX(0%);
+  }
+
+  50% {
+    transform: translateX(100%);
+  }
+
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+@keyframes barGrow {
+  0% {
+    transform: scaleY(0.15);
+    transform-origin: bottom;
+  }
+
+  100% {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUpReveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-fade-up-delay-1 {
+  animation: fadeUpReveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+}
+
+.animate-fade-up-delay-2 {
+  animation: fadeUpReveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) 0.24s both;
+}
+
+.animate-float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: floatDelayed 7.5s ease-in-out 1.2s infinite;
+}
+
+.animate-float-badge {
+  animation: floatBadge 5s ease-in-out infinite;
+}
+
+.animate-pulse-ring {
+  animation: pulseRing 2.8s infinite;
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marqueeScroll 34s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+.animate-dash-flow {
+  animation: dashFlow 1.8s linear infinite;
+}
+
+.animate-dash-flow-fast {
+  animation: dashFlowFast 1.4s linear infinite;
+}
+
+.animate-orbit-slow {
+  animation: orbitSpin 26s linear infinite;
+  transform-origin: center;
+}
+
+.animate-orbit-reverse {
+  animation: orbitSpinReverse 32s linear infinite;
+  transform-origin: center;
+}
+
+.animate-radar-ping {
+  animation: radarPing 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+  transform-origin: center;
+}
+
+.animate-bar-grow {
+  animation: barGrow 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Interactive Card Elevation & Shimmer */
+.premium-card-lift {
+  position: relative;
+  transition:
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.3s ease;
+}
+
+.premium-card-lift:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 48px -12px rgba(13, 159, 110, 0.14), 0 12px 24px -8px rgba(15, 23, 42, 0.08);
+}
+
+.dark .premium-card-lift:hover {
+  box-shadow: 0 24px 48px -12px rgba(16, 185, 129, 0.18), 0 12px 24px -8px rgba(0, 0, 0, 0.6);
+}
+
+/* Shimmer button highlight */
+.btn-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.28),
+      transparent);
+  transform: translateX(-120%) skewX(-15deg);
+  transition: transform 0.6s ease;
+}
+
+.btn-shimmer:hover::after {
+  animation: shimmerSweep 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Architectural Hero Mesh + Subtle Grid Overlay */
+.hero-mesh-pattern {
+  background-color: #0d9f6e;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    radial-gradient(circle at 15% 18%, rgba(255, 255, 255, 0.14) 0%, transparent 42%),
+    radial-gradient(circle at 85% 78%, rgba(4, 47, 46, 0.42) 0%, transparent 48%),
+    linear-gradient(135deg, #0fa974 0%, #0d9f6e 48%, #077a54 100%);
+  background-size: 48px 48px, 48px 48px, 100% 100%, 100% 100%, 100% 100%;
+}
+
+.dark .hero-mesh-pattern {
+  background-color: #052e24;
+  background-image:
+    linear-gradient(to right, rgba(16, 185, 129, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(16, 185, 129, 0.06) 1px, transparent 1px),
+    radial-gradient(circle at 15% 18%, rgba(16, 185, 129, 0.18) 0%, transparent 42%),
+    radial-gradient(circle at 85% 78%, rgba(2, 44, 34, 0.65) 0%, transparent 48%),
+    linear-gradient(135deg, #064e3b 0%, #052e24 55%, #022c22 100%);
+  background-size: 48px 48px, 48px 48px, 100% 100%, 100% 100%, 100% 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  .animate-fade-up,
+  .animate-fade-up-delay-1,
+  .animate-fade-up-delay-2,
+  .animate-float-slow,
+  .animate-float-delayed,
+  .animate-float-badge,
+  .animate-pulse-ring,
+  .animate-marquee,
+  .animate-dash-flow,
+  .animate-bar-grow {
+    animation: none !important;
+  }
+
+  .premium-card-lift:hover {
+    transform: none !important;
+  }
+}
