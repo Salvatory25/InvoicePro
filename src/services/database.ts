@@ -7,6 +7,7 @@ import {
   LineItemCalculationInput,
   subtractMoney,
 } from '../lib/money';
+import { isSupabaseConfigured, supabaseClient } from '../lib/supabase';
 import {
   AuditLog,
   Business,
@@ -227,6 +228,39 @@ class InvoiceProDatabaseEngine {
 
   constructor() {
     this.state = this.loadState();
+    this.hydrateFromSupabase();
+  }
+
+  /**
+   * When connected to a live Supabase project (VITE_DB_MODE=supabase),
+   * hydrate subscription plans from public.subscription_plans.
+   */
+  private hydrateFromSupabase(): void {
+    if (!isSupabaseConfigured || !supabaseClient) return;
+    void supabaseClient
+      .from('subscription_plans')
+      .select('*')
+      .eq('is_active', true)
+      .then(({ data, error }) => {
+        if (error || !Array.isArray(data) || data.length === 0) return;
+        this.state.subscriptionPlans = data.map((row: Record<string, unknown>) => ({
+          id: String(row.id) as SubscriptionPlanId,
+          nameEn: String(row.name_en ?? ''),
+          nameSw: String(row.name_sw ?? ''),
+          monthlyPriceTzs: Number(row.monthly_price_tzs ?? 0).toFixed(2),
+          annualPriceTzs: Number(row.annual_price_tzs ?? 0).toFixed(2),
+          maxInvoicesPerMonth: Number(row.max_invoices_per_month ?? 5),
+          maxClients: Number(row.max_clients ?? 10),
+          maxTeamMembers: Number(row.max_team_members ?? 1),
+          allowQuotations: Boolean(row.allow_quotations),
+          allowProjectsTime: Boolean(row.allow_projects_time),
+          allowAiAssistant: Boolean(row.allow_ai_assistant),
+          allowCustomBranding: Boolean(row.allow_custom_branding),
+          allowCsvExports: Boolean(row.allow_csv_exports),
+          isActive: Boolean(row.is_active),
+        }));
+        this.persist();
+      });
   }
 
   private loadState(): RelationalDatabaseState {
